@@ -12,6 +12,7 @@ dependencies = [
     "numpy>=2.4.1",
     "openai>=2.18.0",
     "openpyxl>=3.1.5",
+    "packaging>=25.0",
     "pandas>=3.0.0",
     "pdfplumber>=0.11.9",
     "pypdf>=6.11.0",
@@ -19,5 +20,12 @@ dependencies = [
     "python-dotenv>=1.2.1",
     "pywebview>=6.1",
     "pywin32>=311",
+    "requests>=2.32.0",
     "uvicorn>=0.40.0",
+]
+
+[dependency-groups]
+dev = [
+    "auto-py-to-exe>=2.46.0",
+    "pyinstaller>=6.17.0",
 ]
