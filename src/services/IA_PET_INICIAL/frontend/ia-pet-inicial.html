@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IA PET INICIAL</title>
+
+  <style>
+    :root{
+      /* Paleta (exatamente as cores que você passou) */
+      --bg0: #211313;     /* base escura */
+      --teal: #16616F;    /* destaque/ativa */
+      --gold: #D2AB66;    /* dourado */
+
+      /* Neutros do tema dark */
+      --text: rgba(245, 240, 232, 0.92);
+      --muted: rgba(245, 240, 232, 0.68);
+
+      /* Superfícies */
+      --panel: rgba(33, 19, 19, 0.62);
+      --panel-2: rgba(33, 19, 19, 0.78);
+      --field: rgba(0, 0, 0, 0.22);
+
+      /* Bordas/brilhos */
+      --border: rgba(210, 171, 102, 0.18);
+      --border-2: rgba(210, 171, 102, 0.28);
+      --glow: 0 18px 60px rgba(0,0,0,0.55);
+
+      --radius: 18px;
+      --focus: 0 0 0 3px rgba(210, 171, 102, 0.26);
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{ height: 100%; }
+    body{
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", Helvetica, sans-serif;
+      color: var(--text);
+
+      /* Fundo no padrão “central”, com glow sutil teal/gold */
+      background:
+        radial-gradient(1200px 600px at 15% 0%, rgba(22, 97, 111, 0.22), transparent 55%),
+        radial-gradient(900px 500px at 85% 22%, rgba(210, 171, 102, 0.18), transparent 60%),
+        radial-gradient(700px 420px at 60% 85%, rgba(22, 97, 111, 0.16), transparent 62%),
+        linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.25)),
+        var(--bg0);
+    }
+
+    a{ color: rgba(210,171,102,0.95); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    .app{
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 18px 16px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 100%;
+    }
+
+    /* Topbar no padrão do print */
+    .topbar{
+      background: linear-gradient(90deg, rgba(33,19,19,0.86), rgba(33,19,19,0.64));
+      border: 1px solid rgba(210,171,102,0.14);
+      border-radius: var(--radius);
+      box-shadow: var(--glow);
+      padding: 14px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand img{
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      border-radius: 14px;
+      padding: 8px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(210,171,102,0.16);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+      flex: 0 0 auto;
+    }
+
+    .brand-text{
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .brand-text h1{
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.2;
+      letter-spacing: 0.2px;
+      color: rgba(210,171,102,0.98);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-text p{
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-right{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    .pill{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(210,171,102,0.18);
+      background: rgba(0,0,0,0.20);
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .pill strong{ color: rgba(210,171,102,0.98); font-weight: 750; }
+
+    .pill.clock{
+      border-color: rgba(210,171,102,0.22);
+      background: rgba(0,0,0,0.28);
+    }
+
+    /* Search row (estilo do print) - opcional */
+    .searchrow{
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(210,171,102,0.14);
+      border-radius: var(--radius);
+      box-shadow: var(--glow);
+      padding: 12px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .search{
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(210,171,102,0.14);
+      background: rgba(0,0,0,0.22);
+      min-width: 0;
+    }
+
+    .search .icon{
+      width: 18px;
+      height: 18px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: rgba(22,97,111,0.95);
+      background: rgba(22,97,111,0.12);
+      border: 1px solid rgba(22,97,111,0.22);
+      flex: 0 0 auto;
+      font-size: 12px;
+    }
+
+    .search input{
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .search input::placeholder{ color: rgba(245,240,232,0.38); }
+
+    /* Cards */
+    .main{
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--glow);
+      padding: 14px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .card h2{
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+      color: rgba(210,171,102,0.96);
+    }
+
+    .row{
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .file-summary{
+      min-width: 0;
+      flex: 1 1 auto;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 10px 12px;
+      border: 1px solid rgba(210,171,102,0.14);
+      border-radius: 14px;
+      background: rgba(0,0,0,0.22);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Botões no padrão */
+    .btn{
+      appearance: none;
+      border: 1px solid rgba(210,171,102,0.18);
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 650;
+      font-size: 13px;
+      cursor: pointer;
+      transition: transform 0.04s ease, border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+      user-select: none;
+    }
+    .btn:hover{ border-color: rgba(210,171,102,0.34); background: rgba(0,0,0,0.28); }
+    .btn:active{ transform: translateY(1px); }
+    .btn:focus-visible{ outline: none; box-shadow: var(--focus); }
+    .btn:disabled{ opacity: 0.55; cursor: not-allowed; }
+
+    /* “Abrir” dourado do print */
+    .btn-primary{
+      background: linear-gradient(180deg, rgba(210,171,102,0.92), rgba(210,171,102,0.72));
+      color: rgba(33,19,19,0.98);
+      border-color: rgba(210,171,102,0.48);
+    }
+    .btn-primary:hover{
+      background: linear-gradient(180deg, rgba(210,171,102,0.98), rgba(210,171,102,0.80));
+      border-color: rgba(210,171,102,0.62);
+    }
+
+    .btn-outline{
+      background: transparent;
+      border-color: rgba(210,171,102,0.24);
+      color: rgba(210,171,102,0.95);
+    }
+    .btn-outline:hover{
+      border-color: rgba(210,171,102,0.40);
+      background: rgba(210,171,102,0.06);
+    }
+
+    .btn-ghost{
+      background: rgba(255,255,255,0.02);
+      border-color: rgba(210,171,102,0.12);
+    }
+
+    /* Top da lista */
+    .files-top{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 12px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .files-top .hint{
+      margin: 0;
+      font-size: 12px;
+      color: rgba(245,240,232,0.55);
+    }
+
+    /* Lista de arquivos */
+    .file-list{
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border: 1px solid rgba(210,171,102,0.12);
+      border-radius: 16px;
+      overflow: auto;
+      max-height: 140px;
+      background: rgba(0,0,0,0.18);
+    }
+
+    .file-item{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 10px;
+      border-bottom: 1px solid rgba(210,171,102,0.10);
+    }
+    .file-item:last-child{ border-bottom: none; }
+
+    .file-item input[type="checkbox"]{
+      width: 16px;
+      height: 16px;
+      accent-color: var(--teal);
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+
+    .file-meta{
+      min-width: 0;
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .file-name{
+      font-size: 13px;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-sub{
+      font-size: 12px;
+      color: rgba(245,240,232,0.62);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Dropzone */
+    .dropzone{
+      margin-top: 12px;
+      border: 2px dashed rgba(210,171,102,0.26);
+      border-radius: 18px;
+      background: rgba(0,0,0,0.16);
+      padding: 18px 14px;
+      display: flex;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease, transform 0.04s ease;
+    }
+
+    .dropzone:focus-visible{ outline: none; box-shadow: var(--focus); }
+    .dropzone:active{ transform: translateY(1px); }
+    .dropzone.dragover{
+      border-color: rgba(210,171,102,0.70);
+      background: rgba(210,171,102,0.10);
+    }
+
+    .dz-inner{
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .dz-icon{
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(210,171,102,0.14);
+      font-size: 22px;
+    }
+
+    .dz-title{ font-weight: 780; color: rgba(210,171,102,0.92); }
+    .dz-sub{ font-size: 13px; color: rgba(245,240,232,0.62); }
+
+    /* Ações */
+    .actions-head{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    /* Progresso */
+    .progress-wrap{
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .progress{
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(210,171,102,0.14);
+      overflow: hidden;
+    }
+
+    .progress > div{
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(22,97,111,0.95), rgba(210,171,102,0.98));
+      border-radius: 999px;
+      transition: width 0.15s ease;
+    }
+
+    .progress-text{
+      font-size: 12px;
+      color: rgba(245,240,232,0.65);
+      min-width: 52px;
+      text-align: right;
+    }
+
+    /* Resposta */
+    .answer-head{
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .answer-actions{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .textarea{
+      width: 100%;
+      min-height: 180px;
+      resize: vertical;
+      border-radius: 16px;
+      border: 1px solid rgba(210,171,102,0.14);
+      background: rgba(0,0,0,0.22);
+      padding: 12px 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: rgba(245,240,232,0.92);
+    }
+    .textarea:focus-visible{ outline: none; box-shadow: var(--focus); }
+
+    /* Footer */
+    .footer{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: rgba(245,240,232,0.60);
+      padding: 6px 2px 0;
+      font-size: 12px;
+    }
+
+    /* Dialogs */
+    dialog{
+      width: min(760px, calc(100% - 18px));
+      border: 1px solid rgba(210,171,102,0.22);
+      border-radius: 18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.65);
+      padding: 0;
+      background: rgba(33,19,19,0.90);
+      color: var(--text);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    dialog::backdrop{
+      background: rgba(0,0,0,0.60);
+    }
+
+    .modal{ padding: 14px; }
+    .modal-head{
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(210,171,102,0.12);
+    }
+    .modal-head h3{
+      margin: 0;
+      font-size: 14px;
+      color: rgba(210,171,102,0.96);
+    }
+    .modal-body{
+      padding-top: 10px;
+      font-size: 13px;
+      color: rgba(245,240,232,0.90);
+    }
+    .modal-body p{ margin: 8px 0; }
+    .modal-body ul, .modal-body ol{ margin: 8px 0 8px 18px; }
+    .modal-body li{ margin: 4px 0; }
+
+    .logbox{
+      width: 100%;
+      min-height: 260px;
+      max-height: 55vh;
+      overflow: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(210,171,102,0.14);
+      background: rgba(0,0,0,0.22);
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: rgba(245,240,232,0.92);
+    }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      background: rgba(0,0,0,0.72);
+      color: rgba(245,240,232,0.95);
+      border: 1px solid rgba(210,171,102,0.22);
+      border-radius: 16px;
+      padding: 10px 12px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.55);
+      max-width: 440px;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      font-size: 13px;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 560px){
+      .brand img{ width: 50px; height: 50px; }
+      .brand-text h1{ font-size: 16px; }
+      .topbar-right{ display: none; }
+    }
+
+     /* Botão fixo "Voltar" (canto superior esquerdo) */
+    .btn-fixo-voltar{
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 9999;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 14px;
+    border-radius: 12px;
+
+    border: 1px solid rgba(210,171,102,.28);
+    background: rgba(22,97,111,.25);
+    color: rgba(255,255,255,.92);
+
+    font-weight: 750;
+    font-size: 13px;
+    text-decoration: none;
+    user-select: none;
+
+    transition: transform .05s ease, border .15s ease, background .15s ease;
+    backdrop-filter: blur(6px);
+    }
+
+    .btn-fixo-voltar:hover{
+    border-color: rgba(210,171,102,.55);
+    }
+
+    .btn-fixo-voltar:active{
+    transform: translateY(1px);
+    }
+
+    /* Opcional: ajusta em telas pequenas */
+    @media (max-width: 520px){
+    .btn-fixo-voltar{
+        top: 12px;
+        left: 12px;
+        padding: 9px 12px;
+    }
+    }
+  </style>
+</head>
+
+<body>
+    <a class="btn-fixo-voltar" href="../../../web/pages/index.html" aria-label="Voltar para o início" title="Voltar">
+        Voltar
+    </a>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <img src="../../../web/assets/LogoCaique.png" alt="Logo da empresa" />
+        <div class="brand-text">
+          <h1>IA PET INICIAL</h1>
+          <p>Selecione até 6 PDFs, consulte a IA e gere a petição.</p>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        
+        <div class="pill">
+          Versão: <strong id="versionLabel">1.2.14</strong>
+        </div>
+      </div>
+    </header>
+
+
+
+    <main class="main">
+      <!-- Arquivos -->
+      <section class="card" aria-labelledby="filesTitle">
+        <div class="row">
+          <button id="btnSelect" class="btn btn-primary" type="button">Selecionar PDF…</button>
+          <input id="fileInput" type="file" accept="application/pdf" multiple hidden />
+          <div id="fileSummary" class="file-summary">Nenhum PDF selecionado</div>
+        </div>
+
+        <div class="files-top">
+          <h2 id="filesTitle">Arquivos selecionados</h2>
+          <div class="row" style="gap:8px">
+            <button id="btnRemove" class="btn" type="button" disabled>Remover selecionado(s)</button>
+          </div>
+          <p class="hint">Dica: você pode selecionar múltiplos PDFs de uma vez.</p>
+        </div>
+
+        <ul id="fileList" class="file-list" aria-label="Lista de PDFs selecionados"></ul>
+
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Arraste o PDF aqui ou clique para selecionar">
+          <div class="dz-inner">
+            <div class="dz-icon" aria-hidden="true">📄</div>
+            <div class="dz-title">Arraste o PDF aqui</div>
+            <div class="dz-sub">ou clique em “Selecionar PDF…”</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ações + Progresso -->
+      <section class="card" aria-labelledby="actionsTitle">
+        <div class="actions-head">
+          <h2 id="actionsTitle">Ações</h2>
+          <div class="row">
+            <button id="btnRun" class="btn btn-primary" type="button" disabled>Perguntar à IA</button>
+            <button id="btnCancel" class="btn btn-outline" type="button" disabled>Cancelar</button>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progresso da análise">
+            <div id="progressFill"></div>
+          </div>
+          <div id="progressText" class="progress-text">0%</div>
+        </div>
+      </section>
+
+      <!-- Resposta -->
+      <section class="card" aria-labelledby="answerTitle">
+        <div class="answer-head">
+          <h2 id="answerTitle">Resposta da IA</h2>
+          <div class="answer-actions">
+            <button id="btnClear" class="btn btn-ghost" type="button">Limpar</button>
+            <button id="btnWord" class="btn btn-primary" type="button" disabled>Gerar Word</button>
+            <button id="btnHelp" class="btn btn-ghost" type="button">Ajuda</button>
+            <button id="btnLog" class="btn" type="button" disabled>LOG</button>
+          </div>
+        </div>
+
+        <textarea id="answerBox" class="textarea" readonly placeholder="A resposta aparecerá aqui…"></textarea>
+      </section>
+
+      <div class="footer">
+        <div>Atalhos: / buscar, Esc limpar</div>
+        <div>Versão: 0.1</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Ajuda -->
+  <dialog id="helpDialog" aria-label="Ajuda — IA PET INICIAL">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Ajuda — IA PET INICIAL</h3>
+        <button id="btnCloseHelp" class="btn" type="button">Fechar</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Como usar:</strong></p>
+        <ol>
+          <li>Clique em <strong>Selecionar PDF…</strong> e escolha até <strong>6 arquivos</strong>.</li>
+          <li>Clique em <strong>Perguntar à IA</strong> e aguarde a análise.</li>
+          <li>A resposta aparecerá em <strong>Resposta da IA</strong>.</li>
+          <li>Clique em <strong>Gerar Word</strong> (após integração com o back-end).</li>
+        </ol>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- LOG -->
+  <dialog id="logDialog" aria-label="LOG — Resposta bruta">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>LOG — Resposta (JSON / texto bruto)</h3>
+        <button id="btnCloseLog" class="btn" type="button">Fechar</button>
+      </div>
+      <div class="modal-body">
+        <div id="logBox" class="logbox" aria-label="Conteúdo do log"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="../frontend/ia-pet-inicial.js" defer></script>
+</body>
+</html>

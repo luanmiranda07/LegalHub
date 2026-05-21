@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerador de Lotes de Integração</title>
+
+  <style>
+    :root{
+      --c-bg: #211313;
+      --c-primary: #16616F;
+      --c-accent: #D2AB66;
+      --c-surface: rgba(255,255,255,0.06);
+      --c-surface-2: rgba(255,255,255,0.10);
+      --c-text: rgba(255,255,255,0.92);
+      --c-text-dim: rgba(255,255,255,0.70);
+      --c-border: rgba(210,171,102,0.25);
+      --c-danger: #ff6b6b;
+      --c-ok: #33d17a;
+
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", "Noto Sans", "Liberation Sans", sans-serif;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: var(--font);
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(22,97,111,0.35), transparent 55%),
+                  radial-gradient(900px 500px at 80% 10%, rgba(210,171,102,0.25), transparent 55%),
+                  var(--c-bg);
+      color: var(--c-text);
+      min-height: 100vh;
+      display:flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+
+    .app{
+      width: min(980px, 100%);
+      display:grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 920px){
+      .app{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
+      border: 1px solid rgba(210,171,102,0.18);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    header{
+      display:flex;
+      gap: 14px;
+      align-items: center;
+      padding: 18px 18px 12px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(90deg, rgba(22,97,111,0.22), transparent 70%);
+    }
+
+    .logo{
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(210,171,102,0.22);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .logo img{
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 8px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+    }
+
+    .title h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+      font-weight: 650;
+    }
+    .title p{
+      margin:4px 0 0 0;
+      color: var(--c-text-dim);
+      font-size: 12.5px;
+    }
+
+    .content{ padding: 16px 18px 18px 18px; }
+
+    .row{
+      display:grid;
+      grid-template-columns: 230px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    @media (max-width: 560px){
+      .row{ grid-template-columns: 1fr; }
+    }
+
+    label{
+      color: var(--c-text);
+      font-size: 13px;
+    }
+
+    .hint{
+      margin: 8px 0 16px 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px dashed rgba(210,171,102,0.25);
+      color: var(--c-text-dim);
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+
+    input[type="text"], input[type="number"]{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      outline: none;
+      background: rgba(0,0,0,0.25);
+      color: var(--c-text);
+      transition: border .15s ease, transform .05s ease;
+    }
+    input[type="text"]:focus, input[type="number"]:focus{
+      border-color: rgba(210,171,102,0.55);
+    }
+
+    .fileline{
+      display:flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn{
+      cursor:pointer;
+      border: 1px solid rgba(210,171,102,0.28);
+      background: rgba(22,97,111,0.25);
+      color: var(--c-text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 650;
+      font-size: 13px;
+      transition: transform .05s ease, border .15s ease, background .15s ease;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+    .btn:hover{ border-color: rgba(210,171,102,0.55); }
+    .btn:active{ transform: translateY(1px); }
+    .btn-primary{
+      width: 100%;
+      padding: 12px 16px;
+      background: linear-gradient(180deg, rgba(210,171,102,0.22), rgba(22,97,111,0.30));
+      border-color: rgba(210,171,102,0.55);
+    }
+
+    .filebox{
+      flex:1 1 auto;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.25);
+      color: var(--c-text-dim);
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12.5px;
+    }
+
+    .section-title{
+      margin: 8px 0 10px 0;
+      font-weight: 750;
+      letter-spacing: 0.2px;
+      font-size: 13.5px;
+      color: rgba(255,255,255,0.92);
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .section-title::before{
+      content:"";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--c-accent);
+      box-shadow: 0 0 0 4px rgba(210,171,102,0.12);
+    }
+
+    .aside{
+      display:flex;
+      flex-direction: column;
+    }
+
+    .status{
+      padding: 14px 14px 10px 14px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      font-weight: 650;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      color: var(--c-text);
+    }
+    .dot{
+      width: 9px; height: 9px; border-radius: 999px;
+      background: rgba(255,255,255,0.35);
+    }
+    .dot.ok{ background: var(--c-ok); }
+    .dot.warn{ background: var(--c-accent); }
+    .dot.err{ background: var(--c-danger); }
+
+    .log{
+      margin-top: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      background: rgba(0,0,0,0.30);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px;
+      height: 280px;
+      overflow:auto;
+      color: rgba(255,255,255,0.85);
+    }
+
+    details{
+      margin-top: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      overflow:hidden;
+    }
+    summary{
+      cursor:pointer;
+      padding: 10px 12px;
+      font-weight: 650;
+      color: rgba(255,255,255,0.90);
+      list-style:none;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    details .inner{ padding: 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+
+    .footer-note{
+      margin-top: 10px;
+      color: var(--c-text-dim);
+      font-size: 12px;
+    }
+
+    /* Botão fixo "Voltar" */
+    .btn-fixo-voltar{
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(210,171,102,.28);
+      background: rgba(22,97,111,.25);
+      color: rgba(255,255,255,.92);
+      font-weight: 750;
+      font-size: 13px;
+      text-decoration: none;
+      user-select: none;
+      transition: transform .05s ease, border .15s ease, background .15s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    .btn-fixo-voltar:hover{ border-color: rgba(210,171,102,.55); }
+    .btn-fixo-voltar:active{ transform: translateY(1px); }
+
+    @media (max-width: 520px){
+      .btn-fixo-voltar{
+        top: 12px;
+        left: 12px;
+        padding: 9px 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="btn-fixo-voltar" href="../../../web/pages/index.html" aria-label="Voltar para o início" title="Voltar">
+    Voltar
+  </a>
+
+  <main class="app">
+    <section class="card">
+      <header>
+        <div class="logo">
+          <img src="../../../web/assets/LogoCaique.png" alt="Logo" />
+        </div>
+        <div class="title">
+          <h1>Gerador de Lotes de Integração</h1>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="row">
+          <label>Arquivo (LOTE):</label>
+          <div class="fileline">
+            <div id="loteName" class="filebox">Nenhum arquivo selecionado</div>
+            <button id="btnPickLote" class="btn" type="button">Selecionar...</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <label>Pasta de saída (opcional):</label>
+          <div class="fileline">
+            <div id="outDirName" class="filebox">Mesma pasta do LOTE</div>
+            <button id="btnPickOutDir" class="btn" type="button">Selecionar...</button>
+            <button id="btnClearOutDir" class="btn" type="button">Limpar</button>
+          </div>
+        </div>
+
+        <div class="hint" id="modelHint">
+          Consultando modelo padrão do app...
+        </div>
+
+        <div class="section-title">Nomes das colunas no arquivo em lote:</div>
+
+        <div class="row">
+          <label for="colProcesso">Coluna do PROCESSO:</label>
+          <input id="colProcesso" type="text" value="Número do Processo" />
+        </div>
+
+        <div class="row">
+          <label for="colCalcp">Coluna para CALCP:</label>
+          <input id="colCalcp" type="text" value="Agosto.2025 - PRINCIPAL" />
+        </div>
+
+        <div class="row">
+          <label for="colHc30">Coluna para HC30%:</label>
+          <input id="colHc30" type="text" value="Contratual - 30%" />
+        </div>
+
+        <div class="row">
+          <label for="colHcp">Coluna para HCP:</label>
+          <input id="colHcp" type="text" value="Contratual CHM" />
+        </div>
+
+        <div class="row">
+          <label for="colCalcs">Coluna para CALCS:</label>
+          <input id="colCalcs" type="text" value="Agosto.2025 - SUCUMBENCIA" />
+        </div>
+
+        <div class="row">
+          <label for="colHsp">Coluna para HSP:</label>
+          <input id="colHsp" type="text" value="Sucumb. Preço" />
+        </div>
+
+        <div class="row">
+          <label for="solicitadoPor">SOLICITADO_POR:</label>
+          <input id="solicitadoPor" type="text" value="45270" />
+        </div>
+
+        <div style="margin-top: 14px;">
+          <button id="btnGerar" class="btn btn-primary" type="button">Gerar Arquivos</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="card aside">
+      <header>
+        <div class="title">
+          <h1>Status e Log</h1>
+          <p>Mensagens de validação e execução</p>
+        </div>
+      </header>
+
+      <div class="status">
+        <div class="badge" id="badgeModel">
+          <span class="dot warn" id="dotModel"></span>
+          <span id="modelStatusText">Modelo: aguardando backend</span>
+        </div>
+
+        <div class="badge" style="margin-left: 10px;" id="badgeLote">
+          <span class="dot warn" id="dotLote"></span>
+          <span id="loteStatusText">LOTE: não selecionado</span>
+        </div>
+
+        <div class="log" id="log"></div>
+
+        <details>
+          <summary>Modelo manual (opcional)</summary>
+          <div class="inner">
+            <div class="row" style="grid-template-columns: 1fr; margin-bottom: 0;">
+              <div class="fileline">
+                <div id="modelName" class="filebox">Nenhum modelo selecionado</div>
+                <button id="btnPickModel" class="btn" type="button">Selecionar modelo...</button>
+                <button id="btnClearModel" class="btn" type="button">Limpar</button>
+              </div>
+            </div>
+            <div class="footer-note">
+              Use isto apenas se você quiser sobrescrever o modelo padrão do app.
+            </div>
+          </div>
+        </details>
+
+        <div class="footer-note">
+          Saídas geradas: 5 arquivos (CALCP/HC30%/HCP/CALCS/HSP) + 1 consolidado (“TODOS”).
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Seu JS -->
+  <script src="../frontend/gerador_lotes.js" defer></script>
+</body>
+</html>

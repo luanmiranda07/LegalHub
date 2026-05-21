@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login | Caíque Castro</title>
+
+  <style>
+    :root{
+      --bg:#211313;         /* fundo principal */
+      --teal:#16616F;       /* secundária */
+      --gold:#D2AB66;       /* destaque / dourado */
+      --text:#F3EBDD;       /* texto claro */
+      --muted:rgba(243,235,221,.72);
+      --border:rgba(210,171,102,.25);
+      --card:rgba(255,255,255,.04);
+      --shadow:0 18px 45px rgba(0,0,0,.35);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(22,97,111,.18), transparent 60%),
+        radial-gradient(900px 500px at 90% 20%, rgba(210,171,102,.12), transparent 55%),
+        linear-gradient(180deg, #1b0f0f, var(--bg));
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+
+    .wrap{
+      width:min(980px, 100%);
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+    }
+
+    .brand{
+      border:1px solid var(--border);
+      border-radius:18px;
+      background:rgba(0,0,0,.18);
+      box-shadow: var(--shadow);
+      padding:22px;
+      position:relative;
+      overflow:hidden;
+      min-height:420px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+
+    .brand::before{
+      content:"";
+      position:absolute;
+      inset:-60px -80px auto auto;
+      width:340px;
+      height:340px;
+      background:radial-gradient(circle, rgba(210,171,102,.18), transparent 62%);
+      transform:rotate(18deg);
+    }
+
+    .logo{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      z-index:1;
+    }
+
+    .logo img{
+      width: 360px;
+      max-width: 100%;
+      height:auto;
+      display:block;
+    }
+
+    .tagline{
+      z-index:1;
+      margin-top:12px;
+      color:var(--muted);
+      line-height:1.5;
+      font-size:13px;
+      max-width:52ch;
+    }
+
+    .bullets{
+      z-index:1;
+      margin-top:18px;
+      display:grid;
+      gap:10px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .bullet{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .dot{
+      width:10px; height:10px;
+      border-radius:999px;
+      background:var(--gold);
+      margin-top:5px;
+      box-shadow:0 0 0 3px rgba(210,171,102,.12);
+      flex:0 0 auto;
+    }
+
+    .panel{
+      border:1px solid var(--border);
+      border-radius:18px;
+      background:rgba(0,0,0,.22);
+      box-shadow: var(--shadow);
+      padding:22px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:12px;
+      min-height:420px;
+    }
+
+    h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.2px;
+      color:var(--gold);
+    }
+
+    .hint{
+      margin:0 0 6px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    label{
+      font-size:12px;
+      color:rgba(243,235,221,.85);
+      margin:10px 0 6px;
+      display:block;
+    }
+
+    input{
+      width:100%;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid rgba(210,171,102,.22);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+
+    input:focus{
+      border-color: rgba(210,171,102,.55);
+      box-shadow: 0 0 0 4px rgba(210,171,102,.10);
+    }
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      width:100%;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid rgba(210,171,102,.55);
+      background:linear-gradient(180deg, rgba(210,171,102,.92), rgba(210,171,102,.70));
+      color:#211313;
+      font-weight:700;
+      cursor:pointer;
+      font-size:14px;
+      letter-spacing:.2px;
+    }
+
+    .btn:hover{ filter:brightness(1.03); }
+
+    .subactions{
+      margin-top:10px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .link{
+      color:rgba(243,235,221,.86);
+      text-decoration:none;
+      border-bottom:1px dashed rgba(210,171,102,.35);
+      cursor:pointer;
+    }
+
+    .error{
+      display:none;
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(210,171,102,.35);
+      background:rgba(22,97,111,.16);
+      color:rgba(243,235,221,.95);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .footer{
+      margin-top:18px;
+      color:rgba(243,235,221,.55);
+      font-size:11px;
+    }
+
+    @media (max-width: 920px){
+      .wrap{ grid-template-columns: 1fr; }
+      .brand, .panel{ min-height:auto; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <section class="brand">
+      <div>
+        <div class="logo">
+          <img src="../assets/LogoCaique.png" alt="Caíque Castro Sociedade de Advocacia">
+        </div>
+
+        <p class="tagline">
+          Central interna de automações e rotinas operacionais. Acesse com suas credenciais para continuar.
+        </p>
+
+        <div class="bullets">
+          <div class="bullet"><span class="dot"></span><div>Unifique fluxos (documentos, relatórios, monitoramento, integrações).</div></div>
+          <div class="bullet"><span class="dot"></span><div>Padronize execução e reduza retrabalho.</div></div>
+          <div class="bullet"><span class="dot"></span><div>Ambiente local com experiência de sistema.</div></div>
+        </div>
+      </div>
+
+      <div class="footer">© <span id="year"></span> Caíque Castro Sociedade de Advocacia</div>
+    </section>
+
+    <section class="panel">
+      <h1>Entrar</h1>
+      <p class="hint">Informe usuário e senha para acessar a Central.</p>
+
+      <form id="loginForm">
+        <label for="user">Usuário</label>
+        <input id="user" name="user" autocomplete="username" required />
+
+        <label for="pass">Senha</label>
+        <input id="pass" name="pass" type="password" autocomplete="current-password" required />
+
+        <div class="error" id="errorBox"></div>
+
+        <div class="row">
+          <button class="btn" type="submit">Acessar</button>
+        </div>
+
+        <div class="subactions">
+          <span>Dica: pressione <strong>Enter</strong> para entrar.</span>
+          <a class="link" id="clearSession">Limpar sessão</a>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script src="../js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Legal Hub | Robô Divisor de PDF</title>
+
+  <style>
+    :root{
+      --bg: #211313;
+      --teal: #16616F;
+      --gold: #D2AB66;
+      --panel: rgba(255,255,255,0.06);
+      --panel-2: rgba(255,255,255,0.09);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.70);
+      --border: rgba(210,171,102,0.25);
+      --border-strong: rgba(210,171,102,0.45);
+      --danger: #ff6b6b;
+      --ok: #7CFFB2;
+      --shadow: 0 10px 25px rgba(0,0,0,0.35);
+      --radius: 14px;
+      --radius-sm: 10px;
+      --focus: 0 0 0 3px rgba(22,97,111,0.35);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{ min-height: 100%; }
+
+    body{
+      margin: 0;
+      background:
+        radial-gradient(1200px 700px at 20% 0%, rgba(22,97,111,0.35), transparent 60%),
+        radial-gradient(900px 600px at 90% 30%, rgba(210,171,102,0.22), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+    }
+
+    .app{
+      max-width: 980px;
+      margin: 24px auto;
+      padding: 0 16px 18px;
+    }
+
+    .shell{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: rgba(0,0,0,0.25);
+    }
+
+    .topbar{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      background: linear-gradient(90deg, rgba(22,97,111,0.35), rgba(0,0,0,0.15));
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 260px;
+    }
+
+    .brand img{
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(210,171,102,0.35);
+      padding: 6px;
+    }
+
+    .brand .title{ line-height: 1.15; }
+
+    .brand .title strong{
+      display: block;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+      color: rgba(210,171,102,0.95);
+    }
+
+    .brand .title span{
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .top-actions{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(210,171,102,0.28);
+      background: rgba(210,171,102,0.10);
+      font-size: 12px;
+      color: rgba(255,255,255,0.85);
+      white-space: nowrap;
+    }
+
+    .content{
+      padding: 16px;
+    }
+
+    .hero{
+      border: 1px solid rgba(210,171,102,0.22);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(22,97,111,0.22), rgba(255,255,255,0.04)),
+        rgba(255,255,255,0.05);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .hero h1{
+      margin: 0 0 6px;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: 0.2px;
+      color: var(--text);
+    }
+
+    .hero p{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    fieldset{
+      margin: 0 0 14px;
+      padding: 18px 14px 14px;
+      border: 1px solid rgba(210,171,102,0.22);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.05);
+    }
+
+    legend{
+      padding: 0 8px;
+      color: rgba(210,171,102,0.95);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    .linha{
+      display: grid;
+      grid-template-columns: 160px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .linha:last-child{ margin-bottom: 0; }
+
+    .linha-sem-botao{
+      grid-template-columns: 160px 1fr;
+    }
+
+    label{
+      color: var(--muted);
+      font-size: 12.5px;
+      font-weight: 650;
+    }
+
+    .input,
+    input[type="text"],
+    input[type="number"]{
+      width: 100%;
+      min-height: 38px;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(210,171,102,0.25);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      outline: none;
+      font-family: var(--font);
+      font-size: 13px;
+    }
+
+    input::placeholder{
+      color: rgba(255,255,255,0.38);
+    }
+
+    input:focus{
+      box-shadow: var(--focus);
+      border-color: rgba(22,97,111,0.65);
+    }
+
+    input[readonly]{
+      cursor: default;
+      color: rgba(255,255,255,0.82);
+    }
+
+    .btn,
+    button{
+      appearance: none;
+      border: 1px solid rgba(210,171,102,0.35);
+      background: rgba(210,171,102,0.10);
+      color: var(--text);
+      min-height: 38px;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      transition: transform .03s ease, background .15s ease, border-color .15s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .btn:hover,
+    button:hover{
+      background: rgba(210,171,102,0.18);
+      border-color: rgba(210,171,102,0.55);
+    }
+
+    .btn:active,
+    button:active{
+      transform: translateY(1px);
+    }
+
+    .btn:focus,
+    button:focus{
+      outline: none;
+      box-shadow: var(--focus);
+    }
+
+    .btn-primary{
+      border-color: rgba(22,97,111,0.75);
+      background: rgba(22,97,111,0.35);
+    }
+
+    .btn-primary:hover{
+      background: rgba(22,97,111,0.45);
+    }
+
+    .btn-danger{
+      border-color: rgba(255,107,107,0.65);
+      background: rgba(255,107,107,0.12);
+    }
+
+    .btn-danger:hover{
+      background: rgba(255,107,107,0.18);
+    }
+
+    .radio-group{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(230px, 1fr));
+      gap: 10px;
+    }
+
+    .radio{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(210,171,102,0.22);
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+      user-select: none;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .radio:hover{
+      background: rgba(255,255,255,0.075);
+      border-color: rgba(210,171,102,0.45);
+    }
+
+    .radio input{
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      accent-color: var(--gold);
+    }
+
+    .radio:has(input:checked){
+      background: rgba(22,97,111,0.28);
+      border-color: rgba(22,97,111,0.75);
+    }
+
+    .descricao{
+      margin: 14px 0 0;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(22,97,111,0.40);
+      background: rgba(22,97,111,0.16);
+      color: rgba(255,255,255,0.86);
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+
+    .acoes{
+      display: grid;
+      grid-template-columns: auto auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin: 0 0 14px;
+    }
+
+    .resultado-fieldset{
+      margin-top: 0;
+      margin-bottom: 0;
+      padding: 14px;
+      min-height: 76px;
+      background: rgba(0,0,0,0.20);
+    }
+
+    .resultado{
+      min-height: 34px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(210,171,102,0.20);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.90);
+      font-size: 12.5px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+
+    .status-ok{ color: var(--ok); }
+    .status-err{ color: var(--danger); }
+
+    .hidden{
+      display: none;
+    }
+
+    .btn-fixo-voltar{
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(210,171,102,.28);
+      background: rgba(22,97,111,.25);
+      color: rgba(255,255,255,.92);
+      font-weight: 750;
+      font-size: 13px;
+      text-decoration: none;
+      user-select: none;
+      transition: transform .05s ease, border .15s ease, background .15s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    .btn-fixo-voltar:hover{
+      border-color: rgba(210,171,102,.55);
+    }
+
+    .btn-fixo-voltar:active{
+      transform: translateY(1px);
+    }
+
+    @media (max-width: 820px){
+      .app{
+        margin-top: 14px;
+      }
+
+      .topbar{
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .brand{
+        min-width: 0;
+      }
+
+      .top-actions{
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .linha,
+      .linha-sem-botao{
+        grid-template-columns: 1fr;
+      }
+
+      .linha button{
+        justify-self: start;
+      }
+
+      .radio-group{
+        grid-template-columns: 1fr;
+      }
+
+      .acoes{
+        grid-template-columns: 1fr;
+      }
+
+      .acoes button{
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 520px){
+      .app{
+        padding: 0 10px 14px;
+      }
+
+      .btn-fixo-voltar{
+        top: 12px;
+        left: 12px;
+        padding: 9px 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="btn-fixo-voltar" href="../../../web/pages/index.html" aria-label="Voltar para o início" title="Voltar">
+    Voltar
+  </a>
+
+  <main class="app">
+    <section class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <img src="../../../web/assets/LogoCaique.png" alt="Logo Caique Castro" />
+          <div class="title">
+            <strong>CAIQUE CASTRO</strong>
+            <span>Sociedade de Advocacia</span>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <span class="badge">Legal Hub</span>
+          <span id="statusBadge" class="badge">Pronto</span>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="hero">
+          <h1>Divisor local de PDF</h1>
+          <p>Sem upload, sem limite artificial de tamanho. O processamento roda no seu computador.</p>
+        </div>
+
+        <form id="formDivisorPdf" autocomplete="off">
+          <fieldset>
+            <legend>1) Arquivos</legend>
+
+            <div class="linha">
+              <label for="pdfEntrada">PDF de entrada:</label>
+              <input id="pdfEntrada" type="text" readonly placeholder="Selecione o PDF de entrada" />
+              <button id="btnSelecionarPdf" type="button">Selecionar</button>
+              <input id="inputPdf" class="hidden" type="file" accept="application/pdf,.pdf" />
+            </div>
+
+            <div class="linha">
+              <label for="pastaSaida">Pasta de saída:</label>
+              <input id="pastaSaida" type="text" readonly placeholder="Selecione a pasta de saída" />
+              <button id="btnSelecionarPasta" type="button">Selecionar</button>
+              <input id="inputPasta" class="hidden" type="file" webkitdirectory directory multiple />
+            </div>
+
+            <div class="linha linha-sem-botao">
+              <label for="nomeBase">Nome base dos arquivos:</label>
+              <input id="nomeBase" type="text" value="arquivo_dividido" />
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>2) Modo de divisão</legend>
+
+            <div class="radio-group" role="radiogroup" aria-label="Modo de divisão">
+              <label class="radio">
+                <input type="radio" name="modoDivisao" value="pagina" checked />
+                <span>Um arquivo por página</span>
+              </label>
+
+              <label class="radio">
+                <input type="radio" name="modoDivisao" value="quantidade" />
+                <span>A cada X páginas</span>
+              </label>
+
+              <label class="radio">
+                <input type="radio" name="modoDivisao" value="intervalos" />
+                <span>Por intervalos personalizados</span>
+              </label>
+
+              <label class="radio">
+                <input type="radio" name="modoDivisao" value="palavra" />
+                <span>Por palavra-chave</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>3) Configuração</legend>
+
+            <div class="linha linha-sem-botao">
+              <label for="paginasPorArquivo">Páginas por arquivo:</label>
+              <input id="paginasPorArquivo" type="number" min="1" step="1" value="1" />
+            </div>
+
+            <div class="linha linha-sem-botao">
+              <label for="intervalos">Intervalos:</label>
+              <input id="intervalos" type="text" value="1-3, 4-6" />
+            </div>
+
+            <div class="linha linha-sem-botao">
+              <label for="palavraChave">Palavra-chave:</label>
+              <input id="palavraChave" type="text" value="Unidade" />
+            </div>
+
+            <p id="descricaoModo" class="descricao">
+              Cria um PDF para cada página do arquivo original.
+            </p>
+          </fieldset>
+
+          <div class="acoes">
+            <button id="btnDividirPdf" class="btn-primary" type="submit">Dividir PDF</button>
+            <button id="btnAbrirPasta" type="button">Abrir pasta de saída</button>
+            <span></span>
+            <button id="btnFechar" class="btn-danger" type="button">Fechar</button>
+          </div>
+
+          <fieldset class="resultado-fieldset">
+            <legend>Resultado</legend>
+            <div id="resultado" class="resultado">Aguardando configuração.</div>
+          </fieldset>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="divisorpdf.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Legal Hub | Adicionar Chance de Êxito</title>
+
+  <style>
+    :root{
+      --bg: #211313;
+      --teal: #16616F;
+      --gold: #D2AB66;
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.70);
+      --border: rgba(210,171,102,0.25);
+      --danger: #ff6b6b;
+      --ok: #7CFFB2;
+      --shadow: 0 10px 25px rgba(0,0,0,0.35);
+      --radius: 14px;
+      --radius-sm: 10px;
+      --focus: 0 0 0 3px rgba(22,97,111,0.35);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    }
+
+    *{ box-sizing: border-box; }
+
+    html,
+    body{
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body{
+      background:
+        radial-gradient(1200px 700px at 20% 0%, rgba(22,97,111,0.35), transparent 60%),
+        radial-gradient(900px 600px at 90% 30%, rgba(210,171,102,0.22), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+    }
+
+    .app{
+      max-width: 980px;
+      margin: 24px auto;
+      padding: 0 16px 18px;
+    }
+
+    .shell{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: rgba(0,0,0,0.25);
+    }
+
+    .topbar{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      background: linear-gradient(90deg, rgba(22,97,111,0.35), rgba(0,0,0,0.15));
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 260px;
+    }
+
+    .brand img{
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(210,171,102,0.35);
+      padding: 6px;
+    }
+
+    .brand .title{ line-height: 1.15; }
+
+    .brand .title strong{
+      display: block;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+      color: rgba(210,171,102,0.95);
+    }
+
+    .brand .title span{
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .top-actions{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .badge{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(210,171,102,0.28);
+      background: rgba(210,171,102,0.10);
+      font-size: 12px;
+      color: rgba(255,255,255,0.85);
+      white-space: nowrap;
+    }
+
+    .status-ok{ color: var(--ok); }
+    .status-err{ color: var(--danger); }
+
+    .content{ padding: 16px; }
+
+    .hero{
+      border: 1px solid rgba(210,171,102,0.22);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(135deg, rgba(22,97,111,0.22), rgba(255,255,255,0.04)),
+        rgba(255,255,255,0.05);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .hero h1{
+      margin: 0 0 6px;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: 0.2px;
+      color: var(--text);
+    }
+
+    .hero p{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .card{
+      border: 1px solid rgba(210,171,102,0.22);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.05);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .card h2{
+      margin: 0 0 14px;
+      font-size: 15px;
+      color: rgba(210,171,102,0.95);
+      letter-spacing: 0.2px;
+    }
+
+    .linha{
+      display: grid;
+      grid-template-columns: 78px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .linha:last-child{ margin-bottom: 0; }
+
+    label{
+      color: var(--muted);
+      font-size: 12.5px;
+      font-weight: 650;
+    }
+
+    input[type="text"]{
+      width: 100%;
+      min-height: 38px;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(210,171,102,0.25);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      outline: none;
+      font-family: var(--font);
+      font-size: 13px;
+    }
+
+    input[type="text"]::placeholder{ color: rgba(255,255,255,0.38); }
+
+    input[type="text"]:focus{
+      box-shadow: var(--focus);
+      border-color: rgba(22,97,111,0.65);
+    }
+
+    input[readonly]{
+      cursor: default;
+      color: rgba(255,255,255,0.82);
+    }
+
+    button{
+      appearance: none;
+      border: 1px solid rgba(210,171,102,0.35);
+      background: rgba(210,171,102,0.10);
+      color: var(--text);
+      min-height: 38px;
+      padding: 9px 14px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      transition: transform .03s ease, background .15s ease, border-color .15s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    button:hover{
+      background: rgba(210,171,102,0.18);
+      border-color: rgba(210,171,102,0.55);
+    }
+
+    button:active{ transform: translateY(1px); }
+
+    button:focus{
+      outline: none;
+      box-shadow: var(--focus);
+    }
+
+    .btn-primary{
+      border-color: rgba(22,97,111,0.75);
+      background: rgba(22,97,111,0.35);
+    }
+
+    .btn-primary:hover{ background: rgba(22,97,111,0.45); }
+
+    .btn-danger{
+      border-color: rgba(255,107,107,0.65);
+      background: rgba(255,107,107,0.12);
+    }
+
+    .btn-danger:hover{ background: rgba(255,107,107,0.18); }
+
+    .actions{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      margin: 8px 0 18px;
+      flex-wrap: wrap;
+    }
+
+    .actions button{ min-width: 150px; }
+
+    .mensagem{
+      margin: 0 0 10px;
+      color: rgba(255,255,255,0.88);
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+
+    .log-area{
+      border: 1px solid rgba(210,171,102,0.22);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,0.20);
+      overflow: hidden;
+    }
+
+    .log-header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(210,171,102,0.18);
+      background: rgba(255,255,255,0.035);
+    }
+
+    .log-header strong{
+      font-size: 13px;
+      color: rgba(210,171,102,0.95);
+    }
+
+    textarea{
+      display: block;
+      width: 100%;
+      min-height: 300px;
+      resize: vertical;
+      padding: 12px;
+      border: 0;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      outline: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+
+    .hidden{ display: none; }
+
+    .btn-fixo-voltar{
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(210,171,102,.28);
+      background: rgba(22,97,111,.25);
+      color: rgba(255,255,255,.92);
+      font-weight: 750;
+      font-size: 13px;
+      text-decoration: none;
+      user-select: none;
+      transition: transform .05s ease, border .15s ease, background .15s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    .btn-fixo-voltar:hover{ border-color: rgba(210,171,102,.55); }
+    .btn-fixo-voltar:active{ transform: translateY(1px); }
+
+    @media (max-width: 780px){
+      .app{ margin-top: 14px; }
+
+      .topbar{
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .brand{ min-width: 0; }
+
+      .linha{ grid-template-columns: 1fr; }
+      .linha button{ justify-self: start; }
+      .actions{ gap: 10px; }
+      .actions button{ width: 100%; }
+    }
+
+    @media (max-width: 520px){
+      .app{ padding: 0 10px 14px; }
+
+      .btn-fixo-voltar{
+        top: 12px;
+        left: 12px;
+        padding: 9px 12px;
+      }
+
+      textarea{ min-height: 240px; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="btn-fixo-voltar" href="../../../web/pages/index.html" aria-label="Voltar para o início" title="Voltar">
+    Voltar
+  </a>
+
+  <main class="app">
+    <section class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <img src="../../../web/assets/LogoCaique.png" alt="Logo Caique Castro" />
+          <div class="title">
+            <strong>CAIQUE CASTRO</strong>
+            <span>Sociedade de Advocacia</span>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <span class="badge">Legal Hub</span>
+          <span id="statusBadge" class="badge">Pronto</span>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="hero">
+          <h1>Adicionar Chance de Êxito</h1>
+          <p>Selecione a pasta e o arquivo Excel para validar os dados e preparar a execução.</p>
+        </div>
+
+        <form id="formExitoBot" autocomplete="off">
+          <section class="card">
+            <h2>Arquivos</h2>
+
+            <div class="linha">
+              <label for="pasta">Pasta:</label>
+              <input id="pasta" type="text" readonly placeholder="Selecione a pasta" />
+              <button id="btnSelecionarPasta" type="button">Selecionar</button>
+              <input id="inputPasta" class="hidden" type="file" webkitdirectory directory multiple />
+            </div>
+
+            <div class="linha">
+              <label for="excel">Excel:</label>
+              <input id="excel" type="text" readonly placeholder="Selecione o arquivo Excel" />
+              <button id="btnSelecionarExcel" type="button">Selecionar</button>
+              <input id="inputExcel" class="hidden" type="file" accept=".xlsx,.xls" />
+            </div>
+          </section>
+
+          <div class="actions">
+            <button id="btnValidar" class="btn-primary" type="button">Validar</button>
+            <button id="btnExecutar" class="btn-primary" type="submit">Executar</button>
+          </div>
+
+          <p id="mensagem" class="mensagem">Selecione a pasta e o Excel.</p>
+
+          <section class="log-area" aria-label="Resultado">
+            <div class="log-header">
+              <strong>Resultado</strong>
+              <button id="btnLimparLog" class="btn-danger" type="button">Limpar</button>
+            </div>
+
+            <textarea id="resultado" readonly spellcheck="false"></textarea>
+          </section>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="exitobot.js" defer></script>
+</body>
+</html>

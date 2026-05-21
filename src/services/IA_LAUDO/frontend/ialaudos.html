@@ -1,0 +1,495 @@
+<!-- src/web/pages/ialaudos.html -->
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IA LAUDOS</title>
+
+  <style>
+    :root{
+      --bg:#211313;
+      --primary:#16616F;
+      --accent:#D2AB66;
+
+      --text: rgba(255,255,255,.92);
+      --text-dim: rgba(255,255,255,.72);
+
+      --surface: rgba(255,255,255,.06);
+      --surface2: rgba(255,255,255,.10);
+      --border: rgba(210,171,102,.24);
+
+      --radius:14px;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", "Noto Sans", "Liberation Sans", sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    html[data-theme="light"]{
+      --text: rgba(15, 18, 22, .92);
+      --text-dim: rgba(15, 18, 22, .70);
+      --surface: rgba(0,0,0,.05);
+      --surface2: rgba(0,0,0,.08);
+      --border: rgba(22,97,111,.25);
+      --shadow:0 10px 25px rgba(0,0,0,.12);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      min-height:100vh;
+      padding:28px;
+
+      background:
+        radial-gradient(1100px 600px at 18% 0%, rgba(22,97,111,.33), transparent 55%),
+        radial-gradient(900px 520px at 82% 10%, rgba(210,171,102,.22), transparent 58%),
+        var(--bg);
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* Botão fixo "Voltar" (padrão Legal Hub) */
+    .btn-fixo-voltar{
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 9999;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 10px 14px;
+      border-radius: 12px;
+
+      border: 1px solid rgba(210,171,102,.28);
+      background: rgba(22,97,111,.25);
+      color: rgba(255,255,255,.92);
+
+      font-weight: 750;
+      font-size: 13px;
+      text-decoration: none;
+      user-select: none;
+
+      transition: transform .05s ease, border .15s ease, background .15s ease;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .btn-fixo-voltar:hover{ border-color: rgba(210,171,102,.55); }
+    .btn-fixo-voltar:active{ transform: translateY(1px); }
+    @media (max-width: 520px){
+      .btn-fixo-voltar{ top: 12px; left: 12px; padding: 9px 12px; }
+    }
+
+    .app{
+      width: min(1100px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    header{
+      display:flex;
+      gap: 14px;
+      align-items:center;
+      padding: 18px 18px 12px 18px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(90deg, rgba(22,97,111,.22), transparent 70%);
+    }
+
+    html[data-theme="light"] header{
+      border-bottom: 1px solid rgba(0,0,0,.08);
+    }
+
+    .logo{
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(210,171,102,.22);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      padding: 8px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
+    }
+
+    .title h1{
+      margin:0;
+      font-size: 18px;
+      font-weight: 750;
+      letter-spacing: .2px;
+    }
+    .title p{
+      margin: 4px 0 0 0;
+      font-size: 12.5px;
+      color: var(--text-dim);
+      line-height:1.3;
+    }
+
+    .content{
+      padding: 14px 18px 16px 18px;
+    }
+
+    /* Botões (padrão Legal Hub) */
+    .btn{
+      cursor:pointer;
+      border: 1px solid rgba(210,171,102,.28);
+      background: rgba(22,97,111,.25);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 750;
+      font-size: 13px;
+      transition: transform .05s ease, border .15s ease, background .15s ease, opacity .15s ease;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+    .btn:hover{ border-color: rgba(210,171,102,.55); }
+    .btn:active{ transform: translateY(1px); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .btn-secondary{
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.12);
+    }
+    html[data-theme="light"] .btn-secondary{
+      background: rgba(0,0,0,.04);
+      border-color: rgba(0,0,0,.10);
+    }
+
+    input[type="file"]{ display:none; }
+
+    /* ====== Layout IGUAL AO PRINT (só que com tema/paleta do Legal Hub) ====== */
+    .helpbar{
+      padding: 10px 2px 8px 2px;
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+    }
+    .help-link{
+      border:none;
+      background:none;
+      padding:0;
+      cursor:pointer;
+      color: var(--text);
+      font-size: 14px;
+      opacity: .95;
+    }
+    .help-link:hover{ text-decoration: underline; }
+
+    .row{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      width:100%;
+    }
+    .row.top{
+      justify-content: space-between;
+      padding: 0 2px 10px 2px;
+    }
+    .row.top .left{
+      display:flex;
+      align-items:center;
+      gap: 14px;
+      min-width:0;
+      flex: 1 1 auto;
+    }
+
+    .file-label{
+      color: var(--text-dim);
+      font-size: 14px;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .dropzone{
+      width: 100%;
+      height: 130px;
+      border: 2px dashed rgba(255,255,255,.40);
+      border-radius: var(--radius);
+      background: rgba(0,0,0,.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    html[data-theme="light"] .dropzone{
+      background: rgba(255,255,255,.55);
+      border-color: rgba(0,0,0,.30);
+    }
+
+    .dropzone.dragover{
+      border-color: rgba(210,171,102,.85);
+      background: rgba(210,171,102,.10);
+    }
+
+    .dz-inner{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 10px;
+    }
+    .folder{
+      font-size: 44px;
+      line-height: 1;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,.35));
+    }
+    .dz-text{
+      font-size: 14px;
+      color: var(--text);
+      opacity: .92;
+    }
+    .dz-text small{
+      display:block;
+      color: var(--text);
+      opacity: .88;
+      margin-top: 4px;
+    }
+
+    .row.actions{
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 0 2px;
+    }
+    .row.actions .left{
+      display:flex;
+      gap: 12px;
+      align-items:center;
+    }
+
+    .progress{
+      width: min(560px, 58vw);
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      position: relative;
+      overflow:hidden;
+    }
+    html[data-theme="light"] .progress{
+      background: rgba(255,255,255,.70);
+      border-color: rgba(0,0,0,.10);
+    }
+
+    .progress .fill{
+      position:absolute;
+      inset:0;
+      width:0%;
+      background: linear-gradient(90deg, rgba(22,97,111,.95), rgba(210,171,102,.92));
+    }
+    .progress .txt{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size: 13px;
+      color: var(--text);
+      opacity: .92;
+      text-shadow: 0 1px 0 rgba(0,0,0,.35);
+      pointer-events:none;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .section-label{
+      margin: 6px 0 8px;
+      padding: 0 2px;
+      font-size: 14px;
+      color: var(--text);
+      opacity: .95;
+    }
+
+    .answer{
+      width:100%;
+      height: 280px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+    html[data-theme="light"] .answer{
+      background: rgba(255,255,255,.72);
+      border-color: rgba(0,0,0,.10);
+    }
+
+    .answer textarea{
+      width:100%;
+      height:100%;
+      border:none;
+      outline:none;
+      resize:none;
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      padding: 6px;
+      font-family: var(--mono);
+      line-height: 1.4;
+    }
+    .answer textarea::placeholder{
+      color: var(--text-dim);
+      opacity: .85;
+      font-family: var(--font);
+    }
+
+    .row.bottom{
+      justify-content:flex-start;
+      gap: 14px;
+      padding: 0 2px 2px 2px;
+    }
+
+    /* Modal Ajuda */
+    dialog{
+      width: min(680px, calc(100% - 18px));
+      border: 1px solid rgba(210,171,102,.22);
+      border-radius: 14px;
+      background: rgba(33,19,19,.92);
+      color: var(--text);
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+      padding: 0;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    dialog::backdrop{ background: rgba(0,0,0,.55); }
+
+    .modal{ padding: 14px 14px 12px; }
+    .modal-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .modal-head h3{
+      margin:0;
+      font-size: 14px;
+      font-weight: 800;
+      color: rgba(210,171,102,.95);
+    }
+    .modal-body{
+      padding-top: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(255,255,255,.90);
+    }
+    .modal-body ul{ margin: 8px 0 0 18px; }
+
+    @media (max-width: 680px){
+      .progress{ width: 52vw; }
+    }
+    @media (max-width: 520px){
+      body{ padding: 18px; }
+      .row.top{ gap: 10px; }
+      .row.top .left{ gap: 10px; }
+      .progress{ width: 48vw; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="btn-fixo-voltar" href="../../../web/pages/index.html" aria-label="Voltar para o início" title="Voltar">Voltar</a>
+
+  <main class="app">
+    <header>
+      <div class="logo">
+        <img src="../../../web/assets/LogoCaique.png" alt="Logo" />
+      </div>
+      <div class="title">
+        <h1>IA LAUDOS</h1>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="helpbar">
+        <button id="btnHelp" class="help-link" type="button">Ajuda</button>
+      </div>
+
+      <div class="row top">
+        <div class="left">
+          <button id="btnSelect" class="btn btn-secondary" type="button">Selecionar PDF...</button>
+          <span id="fileLabel" class="file-label">Nenhum PDF selecionado</span>
+          <input id="fileInput" type="file" accept="application/pdf,.pdf" hidden />
+        </div>
+
+        
+      </div>
+
+      <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="Arraste um PDF aqui ou clique para selecionar">
+        <div class="dz-inner">
+          <div class="folder" aria-hidden="true">📁</div>
+          <div class="dz-text">
+            Arraste um PDF aqui
+            <small>ou clique em "Selecionar PDF"</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="row actions">
+        <div class="left">
+          <button id="btnAsk" class="btn" type="button" disabled>Perguntar à IA</button>
+          <button id="btnCancel" class="btn btn-secondary" type="button" disabled>Cancelar</button>
+        </div>
+
+        <div class="progress" aria-label="Progresso">
+          <div id="progressFill" class="fill"></div>
+          <div id="progressTxt" class="txt">0%</div>
+        </div>
+      </div>
+
+      <div class="section-label">Resposta da IA:</div>
+
+      <div class="answer">
+        <textarea id="answerBox" readonly placeholder="A resposta aparecerá aqui..."></textarea>
+      </div>
+
+      <div class="row bottom">
+        <button id="btnCopy" class="btn btn-secondary" type="button" disabled>Copiar resposta</button>
+        <button id="btnClear" class="btn btn-secondary" type="button">Limpar</button>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="helpDialog" aria-label="Ajuda">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Ajuda</h3>
+        <button id="btnCloseHelp" class="btn btn-secondary" type="button">Fechar</button>
+      </div>
+      <div class="modal-body">
+        <ul>
+          <li>Selecione um PDF (ou arraste e solte na área).</li>
+          <li>Clique em <b>Perguntar à IA</b> para simular o processamento (front-only).</li>
+          <li><b>Cancelar</b> interrompe a simulação.</li>
+          <li><b>Copiar resposta</b> copia o texto da caixa.</li>
+        </ul>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="../frontend/ialaudos.js" defer></script>
+</body>
+</html>

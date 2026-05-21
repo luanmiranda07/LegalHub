@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerador de Documentos Word</title>
+
+  <style>
+    :root{
+      --bg: #211313;
+      --primary: #16616F;
+      --accent: #D2AB66;
+
+      --text: rgba(255,255,255,0.92);
+      --text-dim: rgba(255,255,255,0.72);
+      --surface: rgba(255,255,255,0.06);
+      --surface-2: rgba(255,255,255,0.10);
+      --border: rgba(210,171,102,0.24);
+
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", "Noto Sans", "Liberation Sans", sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    *{ box-sizing: border-box; }
+
+    body{
+      margin:0;
+      font-family: var(--font);
+      color: var(--text);
+      min-height:100vh;
+      padding: 28px;
+
+      background:
+        radial-gradient(1100px 600px at 18% 0%, rgba(22,97,111,0.33), transparent 55%),
+        radial-gradient(900px 520px at 82% 10%, rgba(210,171,102,0.22), transparent 58%),
+        var(--bg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .app{
+      width: min(1100px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    header{
+      display:flex;
+      gap: 14px;
+      align-items:center;
+      padding: 18px 18px 12px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(90deg, rgba(22,97,111,0.22), transparent 70%);
+    }
+
+    .logo{
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(210,171,102,0.22);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      padding: 8px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+    }
+
+    .title h1{
+      margin:0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .title p{
+      margin: 4px 0 0 0;
+      font-size: 12.5px;
+      color: var(--text-dim);
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-wrap: wrap;
+    }
+
+    .topbar .label{
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 650;
+      margin-right: 6px;
+      min-width: 138px;
+    }
+
+    .btn{
+      cursor:pointer;
+      border: 1px solid rgba(210,171,102,0.28);
+      background: rgba(22,97,111,0.25);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 13px;
+      transition: transform .05s ease, border .15s ease, background .15s ease;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      white-space: nowrap;
+      min-height: 40px;
+    }
+
+    .btn:hover{ border-color: rgba(210,171,102,0.55); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn-primary{
+      background: linear-gradient(180deg, rgba(210,171,102,0.20), rgba(22,97,111,0.30));
+      border-color: rgba(210,171,102,0.55);
+    }
+
+    .btn-danger{
+      background: rgba(255, 90, 90, 0.18);
+      border-color: rgba(255, 140, 140, 0.35);
+    }
+
+    .btn:disabled{
+      opacity: 0.48;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    input[type="file"]{ display:none; }
+
+    .field{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex: 1 1 520px;
+      min-width: min(520px, 100%);
+    }
+
+    .field-output{
+      width: 100%;
+      min-width: 0;
+      height: 40px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+      background: rgba(0,0,0,0.22);
+      color: rgba(255,255,255,0.88);
+      padding: 0 12px;
+      outline: none;
+      font-size: 13px;
+    }
+
+    .field-output:focus{
+      border-color: rgba(210,171,102,0.55);
+    }
+
+    .check{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      font-size: 13px;
+      user-select:none;
+      white-space: nowrap;
+    }
+
+    .check input{
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 14px 18px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .statusbar{
+      padding: 10px 18px 14px 18px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-dim);
+      font-size: 12.5px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status-left{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap: wrap;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.88);
+    }
+
+    .dot{
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.30);
+    }
+
+    .dot.ok{ background: #33d17a; }
+    .dot.warn{ background: var(--accent); }
+    .dot.err{ background: #ff6b6b; }
+
+    .right-note{
+      font-family: var(--mono);
+      opacity: 0.9;
+      font-size: 12px;
+    }
+
+    .btn-fixo-voltar{
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 9999;
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 10px 14px;
+      border-radius: 12px;
+
+      border: 1px solid rgba(210,171,102,.28);
+      background: rgba(22,97,111,.25);
+      color: rgba(255,255,255,.92);
+
+      font-weight: 750;
+      font-size: 13px;
+      text-decoration: none;
+      user-select: none;
+
+      transition: transform .05s ease, border .15s ease, background .15s ease;
+      backdrop-filter: blur(6px);
+    }
+
+    .btn-fixo-voltar:hover{
+      border-color: rgba(210,171,102,.55);
+    }
+
+    .btn-fixo-voltar:active{
+      transform: translateY(1px);
+    }
+
+    @media (max-width: 820px){
+      body{
+        align-items:flex-start;
+        padding: 72px 16px 20px 16px;
+      }
+
+      .field{
+        flex-basis: 100%;
+      }
+    }
+
+    @media (max-width: 520px){
+      .btn-fixo-voltar{
+        top: 12px;
+        left: 12px;
+        padding: 9px 12px;
+      }
+
+      .topbar{
+        align-items: stretch;
+      }
+
+      .topbar .label{
+        min-width: 100%;
+      }
+
+      .field{
+        display:grid;
+        grid-template-columns: 1fr;
+      }
+
+      .btn{
+        width: 100%;
+      }
+
+      .check{
+        width: 100%;
+        justify-content:center;
+      }
+
+      .actions{
+        display:grid;
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="btn-fixo-voltar" href="../../../web/pages/index.html" aria-label="Voltar para o início" title="Voltar">
+    Voltar
+  </a>
+
+  <main class="app">
+    <header>
+      <div class="logo">
+        <img src="../../../web/assets/LogoCaique.png" alt="Logo" />
+      </div>
+
+      <div class="title">
+        <h1>Gerador de Documentos Word</h1>
+        <p>Geração em lote a partir de planilha Excel ou CSV</p>
+      </div>
+    </header>
+
+    <section class="topbar" aria-label="Seleção de arquivos">
+      <span class="label">Arquivo Excel / CSV:</span>
+
+      <div class="field">
+        <input class="field-output" id="arquivoExcelTexto" type="text" readonly placeholder="Nenhum arquivo selecionado" />
+        <button class="btn" id="btnSelecionarArquivo" type="button">Selecionar…</button>
+      </div>
+
+      <input id="arquivoExcel" type="file" accept=".xlsx,.xls,.xlsm,.csv" hidden />
+    </section>
+
+    <section class="topbar" aria-label="Seleção da pasta base de saída">
+      <span class="label">Pasta base de saída:</span>
+
+      <div class="field">
+        <input class="field-output" id="pastaSaidaTexto" type="text" readonly placeholder="Nenhuma pasta selecionada" />
+        <button class="btn" id="btnSelecionarPasta" type="button">Selecionar…</button>
+      </div>
+
+      <label class="check" title="Ao marcar, também solicita a geração em PDF.">
+        <input id="gerarPdf" type="checkbox" />
+        Gerar em PDF
+      </label>
+    </section>
+
+    <section class="actions" aria-label="Ações">
+      <button class="btn btn-primary" id="btnGerar" type="button">Gerar documentos</button>
+      <button class="btn btn-danger" id="btnCancelar" type="button" disabled>Cancelar</button>
+      <button class="btn" id="btnLimpar" type="button">Limpar</button>
+    </section>
+
+    <section class="statusbar" aria-label="Status">
+      <div class="status-left">
+        <span class="badge" id="badgeApp">
+          <span class="dot warn" id="dotApp"></span>
+          <span id="statusText">Selecione a planilha e a pasta de saída.</span>
+        </span>
+      </div>
+
+      <div class="right-note" id="hintNote">Aguardando integração com o backend.</div>
+    </section>
+  </main>
+
+  <script src="geradordocumentos.js" defer></script>
+</body>
+</html>

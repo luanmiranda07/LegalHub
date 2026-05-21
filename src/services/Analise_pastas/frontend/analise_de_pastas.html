@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gerenciador de Pastas - Auditoria</title>
+
+  <style>
+    :root{
+      --bg: #211313;
+      --teal: #16616F;
+      --gold: #D2AB66;
+      --panel: rgba(255,255,255,0.06);
+      --panel-2: rgba(255,255,255,0.09);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.70);
+      --danger: #ff6b6b;
+      --ok: #7CFFB2;
+      --border: rgba(210,171,102,0.25);
+      --shadow: 0 10px 25px rgba(0,0,0,0.35);
+      --radius: 14px;
+      --radius-sm: 10px;
+      --focus: 0 0 0 3px rgba(22,97,111,0.35);
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    }
+
+    *{ box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin: 0;
+      background: radial-gradient(1200px 700px at 20% 0%, rgba(22,97,111,0.35), transparent 60%),
+                  radial-gradient(900px 600px at 90% 30%, rgba(210,171,102,0.22), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+    }
+
+    .app{
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px 18px;
+    }
+
+    .shell{
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: rgba(0,0,0,0.25);
+    }
+
+    /* Header / Top bar */
+    .topbar{
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 16px;
+      background: linear-gradient(90deg, rgba(22,97,111,0.35), rgba(0,0,0,0.15));
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 260px;
+    }
+    .brand img{
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(210,171,102,0.35);
+      padding: 6px;
+    }
+    .brand .title{ line-height: 1.15; }
+    .brand .title strong{
+      display: block;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+      color: rgba(210,171,102,0.95);
+    }
+    .brand .title span{
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .folderbar{
+      display: grid;
+      grid-template-columns: 90px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    label.small{
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .input{
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(210,171,102,0.25);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      outline: none;
+    }
+    .input:focus{ box-shadow: var(--focus); border-color: rgba(22,97,111,0.65); }
+
+    .btn{
+      appearance: none;
+      border: 1px solid rgba(210,171,102,0.35);
+      background: rgba(210,171,102,0.10);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      transition: transform .03s ease, background .15s ease, border-color .15s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .btn:hover{
+      background: rgba(210,171,102,0.18);
+      border-color: rgba(210,171,102,0.55);
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn:focus{ outline: none; box-shadow: var(--focus); }
+
+    .btn-primary{
+      border-color: rgba(22,97,111,0.75);
+      background: rgba(22,97,111,0.35);
+    }
+    .btn-primary:hover{ background: rgba(22,97,111,0.45); }
+
+    .btn-danger{
+      border-color: rgba(255,107,107,0.65);
+      background: rgba(255,107,107,0.12);
+    }
+    .btn-danger:hover{ background: rgba(255,107,107,0.18); }
+
+    /* Main area */
+    .main{
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 520px;
+    }
+
+    .sidebar{
+      border-right: 1px solid var(--border);
+      padding: 16px;
+      background: linear-gradient(180deg, rgba(22,97,111,0.25), rgba(0,0,0,0.12));
+    }
+
+    .sidebar h3{
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .nav{
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .nav .navbtn{
+      text-align: left;
+      width: 100%;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(210,171,102,0.28);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .nav .navbtn:hover{
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(210,171,102,0.45);
+    }
+    .nav .navbtn.active{
+      background: rgba(22,97,111,0.32);
+      border-color: rgba(22,97,111,0.75);
+    }
+
+    .content{ padding: 16px; }
+
+    .card{
+      border: 1px solid rgba(210,171,102,0.22);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,0.05);
+      padding: 14px;
+    }
+
+    .card h4{
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: rgba(255,255,255,0.92);
+      letter-spacing: 0.2px;
+    }
+
+    .grid{
+      display: grid;
+      grid-template-columns: 160px 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .row{
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .radio-group{
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .radio{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(210,171,102,0.22);
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+      user-select: none;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .radio input{ accent-color: var(--gold); }
+
+    .hint{
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.45;
+      white-space: pre-line;
+    }
+
+    .actions{
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .two-cols{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .check{
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(210,171,102,0.22);
+      background: rgba(255,255,255,0.04);
+      width: fit-content;
+      user-select: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .check input{ accent-color: var(--teal); }
+
+    .divider{
+      height: 1px;
+      background: rgba(210,171,102,0.18);
+      margin: 12px 0;
+      border: 0;
+    }
+
+    /* Log area */
+    .log{
+      border-top: 1px solid var(--border);
+      padding: 14px 16px 16px;
+      background: rgba(0,0,0,0.20);
+    }
+    .log header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .log header strong{
+      font-size: 13px;
+      letter-spacing: 0.2px;
+      color: rgba(255,255,255,0.92);
+    }
+    .log textarea{
+      width: 100%;
+      min-height: 170px;
+      resize: vertical;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(210,171,102,0.25);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.90);
+      outline: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+    .log textarea:focus{ box-shadow: var(--focus); border-color: rgba(22,97,111,0.65); }
+
+    .badge{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(210,171,102,0.28);
+      background: rgba(210,171,102,0.10);
+      font-size: 12px;
+      color: rgba(255,255,255,0.85);
+      margin-left: 10px;
+    }
+
+    .status-ok{ color: var(--ok); }
+    .status-err{ color: var(--danger); }
+
+    .hidden{ display: none !important; }
+
+    @media (max-width: 920px){
+      .main{ grid-template-columns: 1fr; }
+      .sidebar{ border-right: 0; border-bottom: 1px solid var(--border); }
+      .brand{ min-width: auto; }
+      .folderbar{ grid-template-columns: 90px 1fr; }
+      .folderbar .btn{ grid-column: 2 / 3; justify-self: end; }
+      .two-cols{ grid-template-columns: 1fr; }
+      .grid{ grid-template-columns: 120px 1fr; }
+      .grid .btn{ grid-column: 2 / 3; justify-self: end; }
+    }
+
+    /* Botão fixo Voltar */
+    .btn-fixo-voltar{
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 9999;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(210,171,102,.28);
+      background: rgba(22,97,111,.25);
+      color: rgba(255,255,255,.92);
+      font-weight: 750;
+      font-size: 13px;
+      text-decoration: none;
+      user-select: none;
+      transition: transform .05s ease, border .15s ease, background .15s ease;
+      backdrop-filter: blur(6px);
+    }
+    .btn-fixo-voltar:hover{ border-color: rgba(210,171,102,.55); }
+    .btn-fixo-voltar:active{ transform: translateY(1px); }
+
+    @media (max-width: 520px){
+      .btn-fixo-voltar{
+        top: 12px;
+        left: 12px;
+        padding: 9px 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="shell">
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <div class="brand">
+          <img src="../../../web/assets/LogoCaique.png" alt="Logo" />
+          <div class="title">
+            <strong>CAIQUE CASTRO</strong>
+            <span>Sociedade de Advocacia</span>
+          </div>
+        </div>
+
+        <div class="folderbar" aria-label="Seleção de pasta base">
+          <label class="small" for="folderPath">Pasta base:</label>
+          <input id="folderPath" class="input" type="text" placeholder="Selecione a pasta base (onde estão as subpastas)" readonly />
+          <button id="btnPickFolder" class="btn btn-primary" type="button">Selecionar...</button>
+
+          <input id="folderPicker" type="file" webkitdirectory directory multiple class="hidden" />
+        </div>
+      </div>
+
+      <a class="btn-fixo-voltar" href="../../../web/pages/index.html" aria-label="Voltar para o início" title="Voltar">
+        Voltar
+      </a>
+
+      <!-- MAIN -->
+      <div class="main">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+          <h3>Opções</h3>
+          <div class="nav">
+            <button class="navbtn active" type="button" data-view="preencher">1. Análise de Pastas</button>
+            <button class="navbtn" type="button" data-view="renomear">2. Adicionar Numeração</button>
+            <button class="navbtn" type="button" data-view="corrigir">3. Corrigir numeração</button>
+            <button class="navbtn" type="button" data-view="ajuda">4. Ajuda</button>
+          </div>
+
+          <div style="margin-top:14px">
+            <span class="badge" id="folderBadge">Nenhuma pasta selecionada</span>
+          </div>
+        </aside>
+
+        <!-- CONTENT -->
+        <section class="content">
+          <!-- VIEW: PREENCHER -->
+          <div id="view-preencher" class="view">
+            <div class="card">
+              <h4>Preencher Pastas</h4>
+
+              <div class="grid">
+                <label class="small">Modelo Excel:</label>
+                <div class="radio-group" role="radiogroup" aria-label="Modelo Excel">
+                  <label class="radio">
+                    <input type="radio" name="templateMode" value="PADRAO" checked />
+                    Padrão
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="templateMode" value="ROBO" />
+                    Robô
+                  </label>
+                </div>
+                <span></span>
+              </div>
+
+              <div class="grid" style="margin-top:10px">
+                <label class="small" for="belineXlsxPath">Arquivo (.xlsx):</label>
+                <input id="belineXlsxPath" class="input" type="text" readonly placeholder="(usado apenas no modo DS Beline)" />
+                <button id="btnPickBelineXlsx" class="btn" type="button">Selecionar...</button>
+                <input id="belineXlsxPicker" type="file" accept=".xlsx" class="hidden" />
+              </div>
+
+              <label class="check">
+                <input id="chkBelinePreencher" type="checkbox" />
+                Preencher Fornecedor DS Beline
+              </label>
+
+              <div class="actions">
+                <button id="btnRunPreencher" class="btn btn-primary" type="button">Gerar Excel preenchido...</button>
+                <button id="btnClearLog1" class="btn btn-danger" type="button">Limpar log</button>
+              </div>
+            </div>
+
+            <div class="hint">
+Preenche apenas: Nº PARCEIRO, PARCEIRO, CLIENTE, RÉU, ESTADO e NOME DA PASTA.
+CLASSIFICAÇÃO / OBSERVAÇÃO / RESPONSÁVEL ficam em branco para preenchimento manual.
+Linhas com problemas ficam destacadas e detalhes vão para a aba 'VALIDAÇÃO'.
+            </div>
+          </div>
+
+          <!-- VIEW: RENOMEAR -->
+          <div id="view-renomear" class="view hidden">
+            <div class="card">
+              <h4>Adicionar Numeração (prefixo sequencial)</h4>
+
+              <div class="two-cols">
+                <div class="row">
+                  <label class="small" for="renameCCS">Número CCS:</label>
+                  <input id="renameCCS" class="input" type="number" min="0" step="1" value="1" />
+                </div>
+
+                <div class="row">
+                  <label class="small" for="renameParceiro">Número Parceiro:</label>
+                  <input id="renameParceiro" class="input" type="number" min="0" step="1" value="1" />
+                </div>
+              </div>
+
+              <label class="check">
+                <input id="chkBelineRenomear" type="checkbox" />
+                Preencher Fornecedor DS Beline
+              </label>
+
+              <hr class="divider" />
+
+              <div class="grid">
+                <label class="small" for="renomearXlsxPath">Arquivo (.xlsx):</label>
+                <input id="renomearXlsxPath" class="input" type="text" readonly placeholder="(obrigatório no modo DS Beline)" />
+                <button id="btnPickRenomearXlsx" class="btn" type="button">Selecionar...</button>
+                <input id="renomearXlsxPicker" type="file" accept=".xlsx" class="hidden" />
+              </div>
+
+              <label class="check">
+                <input id="renameDryrun" type="checkbox" checked />
+                Prévia (não renomear)
+              </label>
+
+              <div class="actions">
+                <button id="btnRunRenomear" class="btn btn-primary" type="button">Executar</button>
+                <button id="btnRunSomenteCCS" class="btn btn-primary" type="button">Executar Somente CCS</button>
+                <button id="btnLimparNumeracao" class="btn" type="button">Limpar Numeração</button>
+                <button id="btnClearLog2" class="btn btn-danger" type="button">Limpar log</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIEW: CORRIGIR -->
+          <div id="view-corrigir" class="view hidden">
+            <div class="card">
+              <h4>Corrigir numeração (prefixo antes do primeiro '.')</h4>
+
+              <div class="row">
+                <label class="small" for="fixPrefix">Novo prefixo (antes do primeiro '.'): </label>
+                <input id="fixPrefix" class="input" type="text" placeholder="Ex.: 01" />
+              </div>
+
+              <label class="check">
+                <input id="chkFixPadronizarJudicial" type="checkbox" />
+                Padronizar parceiro judicial
+              </label>
+
+              <div id="fixPartnerRow" class="row">
+                <label class="small" for="fixPartnerName">Parceiro:</label>
+                <input id="fixPartnerName" class="input" type="text" value="UNI ASSESSORIA" disabled />
+              </div>
+
+              <label class="check">
+                <input id="chkFixDashToDot" type="checkbox" />
+                Trocar '-' por '.' no prefixo numérico
+              </label>
+
+              <label class="check">
+                <input id="chkFixDotToDash" type="checkbox" />
+                Trocar '.' por '-' no prefixo numérico
+              </label>
+
+              <label class="check">
+                <input id="fixDryrun" type="checkbox" checked />
+                Prévia (não renomear)
+              </label>
+
+              <div class="actions">
+                <button id="btnRunCorrigir" class="btn btn-primary" type="button">Executar</button>
+                <button id="btnClearLog3" class="btn btn-danger" type="button">Limpar log</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIEW: AJUDA -->
+          <div id="view-ajuda" class="view hidden">
+            <div class="card">
+              <h4>Ajuda</h4>
+              <div class="hint">
+• Pasta base: selecione a pasta que contém as subpastas a serem analisadas/renomeadas.
+
+1) Análise de Pastas
+- Padrão: usa o modelo padrão.
+- Robô: usa o modelo do robô.
+- “Preencher Fornecedor DS Beline”: habilita o fluxo que usa um arquivo .xlsx auxiliar (quando o backend estiver conectado).
+
+2) Adicionar Numeração
+- Informe “Número CCS” e/ou “Número Parceiro”.
+- “Executar Somente CCS”: aplica só CCS.
+- “Limpar Numeração”: remove o prefixo numérico inicial.
+- “Prévia (não renomear)” simula sem alterar nada.
+- “Preencher Fornecedor DS Beline”: modo que passa a usar um .xlsx (quando o backend estiver conectado).
+
+3) Corrigir numeração
+- Ajusta o prefixo antes do primeiro ponto “.”.
+- Também permite padronizar parceiro judicial e converter '-' / '.' apenas no prefixo numérico.
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- LOG -->
+      <div class="log">
+        <header>
+          <div>
+            <strong>Log</strong>
+            <span id="logStatus" class="badge">Pronto</span>
+          </div>
+          <button id="btnClearLogGlobal" class="btn btn-danger" type="button">Limpar log</button>
+        </header>
+
+        <textarea id="logBox" readonly spellcheck="false"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script src="../frontend/analise_de_pastas.js" defer></script>
+</body>
+</html>

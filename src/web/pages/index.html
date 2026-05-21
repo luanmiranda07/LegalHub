@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Central de Automações</title>
+
+  <style>
+    :root{
+      --bg:#211313;
+      --teal:#16616F;
+      --gold:#D2AB66;
+      --text:#F3EBDD;
+      --muted:rgba(243,235,221,.70);
+      --border:rgba(210,171,102,.22);
+      --card:rgba(255,255,255,.04);
+      --shadow:0 18px 45px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+
+    html{
+      height: 100%;
+      /* evita “pulo” quando a scrollbar aparece/desaparece */
+      scrollbar-gutter: stable;
+    }
+
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg); /* base sólida */
+      color:var(--text);
+
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Degradê FIXO no viewport (não acompanha altura da div/conteúdo) */
+    body::before{
+      content:"";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(22,97,111,.18), transparent 60%),
+        radial-gradient(900px 500px at 90% 20%, rgba(210,171,102,.12), transparent 55%),
+        linear-gradient(180deg, #1b0f0f, var(--bg));
+
+      background-repeat: no-repeat;
+
+      /* ajuda o WebView a não “recalcular” o fundo a cada repaint */
+      transform: translateZ(0);
+      will-change: transform;
+    }
+
+
+    header{
+      padding:22px 24px 14px;
+      border-bottom:1px solid var(--border);
+      background:rgba(0,0,0,.12);
+      position:sticky;
+      top:0;
+      backdrop-filter: blur(6px);
+      z-index:10;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:260px;
+    }
+    .brand img{
+      height:34px;
+      width:auto;
+      display:block;
+    }
+    h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      color:var(--gold);
+      font-weight:800;
+    }
+
+    .right{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .tag{
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      white-space:nowrap;
+    }
+
+    .btn{
+      border:none;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:13px;
+      cursor:pointer;
+      color:var(--text);
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .btn:hover{ filter:brightness(1.05); }
+
+    .subtitle{
+      margin:10px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+      max-width:90ch;
+    }
+
+    .toolbar{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .search{
+      flex:1;
+      min-width:260px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 12px;
+      box-shadow: var(--shadow);
+    }
+    .search input{
+      width:100%;
+      border:none;
+      outline:none;
+      background:transparent;
+      color:var(--text);
+      font-size:14px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill:hover{background:rgba(255,255,255,.07)}
+
+    main{
+      padding:18px 24px 28px;
+      max-width:1100px;
+      margin:0 auto;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+      gap:14px;
+      margin-top:16px;
+    }
+
+    .card{
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:150px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+    }
+
+    .card h3{
+      margin:0;
+      font-size:15px;
+      letter-spacing:.2px;
+      color:rgba(243,235,221,.95);
+    }
+
+    .desc{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .status{
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(22,97,111,.14);
+      color:rgba(243,235,221,.95);
+      white-space:nowrap;
+    }
+    .status.active{
+      background:rgba(22,97,111,.18);
+      border-color:rgba(22,97,111,.35);
+    }
+    .status.draft{
+      background:rgba(210,171,102,.10);
+      border-color:rgba(210,171,102,.30);
+      color:var(--gold);
+    }
+
+    .actions{
+      margin-top:auto;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .btn.primary{
+      background:linear-gradient(180deg, rgba(210,171,102,.92), rgba(210,171,102,.70));
+      color:#211313;
+      border-color:rgba(210,171,102,.55);
+      font-weight:700;
+    }
+
+    .empty{
+      margin-top:16px;
+      padding:14px;
+      border-radius:14px;
+      border:1px dashed var(--border);
+      color:var(--muted);
+      background:rgba(255,255,255,.03);
+      display:none;
+    }
+
+    .footer{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:40;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(0,0,0,.58);
+      backdrop-filter:blur(5px);
+    }
+    .modal-backdrop.open{display:flex}
+
+    .modal{
+      width:min(520px, 100%);
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:#211313;
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+    .modal-header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    .modal h2{
+      margin:0;
+      color:var(--gold);
+      font-size:17px;
+    }
+    .modal-close{
+      min-width:38px;
+      min-height:38px;
+      padding:0;
+      font-size:18px;
+    }
+    .modal-row{
+      margin:10px 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .modal-label{
+      display:block;
+      margin-bottom:4px;
+      color:rgba(243,235,221,.92);
+      font-weight:700;
+    }
+    .modal-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .manual-empty{
+      display:none;
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <img src="../assets/LogoCaique.png" alt="Caíque Castro">
+        <h1>Central de Automações</h1>
+      </div>
+
+      <div class="right">
+        <div id="clock" class="tag">--:--</div>
+        <button class="btn" id="btnLogout">Sair</button>
+      </div>
+    </div>
+
+    <p class="subtitle">
+      Hub interno para executar automações e acessar rotinas. Use a busca para localizar rapidamente.
+    </p>
+
+    <div class="toolbar">
+      <div class="search">
+        <span style="opacity:.85">🔎</span>
+        <input id="searchInput" placeholder="Buscar automação (ex.: boletos, relatórios, WhatsApp, PDF)..." />
+      </div>
+
+      <div class="pill" id="btnAll">Todas</div>
+      <div class="pill" id="btnActive">Ativas</div>
+      <div class="pill" id="btnDraft">Em construção</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid" id="cards"></div>
+    <div class="empty" id="emptyState">Nenhuma automação encontrada com esse filtro/busca.</div>
+
+    <div class="footer">
+      <div>Versão: <span id="version">0.1</span></div>
+      <div>Atalhos: <strong>/</strong> buscar, <strong>Esc</strong> limpar</div>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="detailsModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detailsTitle">
+      <div class="modal-header">
+        <h2 id="detailsTitle">Detalhes</h2>
+        <button class="btn modal-close" id="detailsClose" type="button" aria-label="Fechar">x</button>
+      </div>
+
+      <div class="modal-row">
+        <span class="modal-label">Status</span>
+        <span id="detailsStatus"></span>
+      </div>
+
+      <div class="modal-row">
+        <span class="modal-label">Descrição</span>
+        <span id="detailsDescription"></span>
+      </div>
+
+      <div class="modal-row">
+        <span class="modal-label">Página</span>
+        <span id="detailsPage"></span>
+      </div>
+
+      <div class="modal-actions">
+        <a class="btn primary" id="manualLink" href="#" target="_blank" rel="noopener">Abrir manual em PDF</a>
+        <button class="btn" id="detailsOpenPage" type="button">Abrir automação</button>
+      </div>
+
+      <div class="manual-empty" id="manualEmpty">Manual em PDF ainda não cadastrado para esta automação.</div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Extrair PDF para EXCEL (Lote)</title>
+
+  <style>
+    :root{
+      --bg: #211313;
+      --primary: #16616F;
+      --accent: #D2AB66;
+
+      --text: rgba(255,255,255,0.92);
+      --text-dim: rgba(255,255,255,0.72);
+      --surface: rgba(255,255,255,0.06);
+      --surface-2: rgba(255,255,255,0.10);
+      --border: rgba(210,171,102,0.24);
+
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", "Noto Sans", "Liberation Sans", sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: var(--font);
+      color: var(--text);
+      min-height:100vh;
+      padding: 28px;
+
+      background:
+        radial-gradient(1100px 600px at 18% 0%, rgba(22,97,111,0.33), transparent 55%),
+        radial-gradient(900px 520px at 82% 10%, rgba(210,171,102,0.22), transparent 58%),
+        var(--bg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .app{
+      width: min(1100px, 100%);
+      background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    header{
+      display:flex;
+      gap: 14px;
+      align-items:center;
+      padding: 18px 18px 12px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(90deg, rgba(22,97,111,0.22), transparent 70%);
+    }
+
+    .logo{
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(210,171,102,0.22);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      padding: 8px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+    }
+
+    .title h1{
+      margin:0;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+    .title p{
+      margin: 4px 0 0 0;
+      font-size: 12.5px;
+      color: var(--text-dim);
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      flex-wrap: wrap;
+    }
+
+    .topbar .label{
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 650;
+      margin-right: 6px;
+    }
+
+    .btn{
+      cursor:pointer;
+      border: 1px solid rgba(210,171,102,0.28);
+      background: rgba(22,97,111,0.25);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 13px;
+      transition: transform .05s ease, border .15s ease, background .15s ease;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+    .btn:hover{ border-color: rgba(210,171,102,0.55); }
+    .btn:active{ transform: translateY(1px); }
+    .btn-primary{
+      background: linear-gradient(180deg, rgba(210,171,102,0.20), rgba(22,97,111,0.30));
+      border-color: rgba(210,171,102,0.55);
+    }
+    .btn-danger{
+      background: rgba(255, 90, 90, 0.18);
+      border-color: rgba(255, 140, 140, 0.35);
+    }
+
+    input[type="file"]{ display:none; }
+
+    .check{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+      color: var(--text);
+      font-size: 13px;
+      user-select:none;
+    }
+    .check input{ width: 16px; height: 16px; accent-color: var(--accent); }
+
+    .content{
+      padding: 14px 18px 10px 18px;
+    }
+
+    .table-wrap{
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.22);
+      border-radius: 12px;
+      overflow:hidden;
+    }
+
+    .table-scroll{
+      max-height: 320px;
+      overflow:auto;
+    }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      min-width: 860px;
+    }
+
+    thead th{
+      position: sticky;
+      top: 0;
+      background: linear-gradient(180deg, rgba(22,97,111,0.35), rgba(0,0,0,0.20));
+      color: rgba(255,255,255,0.92);
+      text-align:left;
+      font-size: 12.5px;
+      letter-spacing: 0.2px;
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      z-index: 2;
+      white-space: nowrap;
+    }
+
+    tbody td{
+      padding: 10px 12px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.88);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      vertical-align: middle;
+    }
+
+    tbody tr{
+      cursor: pointer;
+      transition: background .12s ease;
+    }
+    tbody tr:hover{
+      background: rgba(255,255,255,0.04);
+    }
+    tbody tr.selected{
+      background: rgba(210,171,102,0.14);
+      outline: 1px solid rgba(210,171,102,0.30);
+      outline-offset: -1px;
+    }
+
+    .pill{
+      display:inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.86);
+    }
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 12px 18px 14px 18px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .statusbar{
+      padding: 10px 18px 14px 18px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      color: var(--text-dim);
+      font-size: 12.5px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status-left{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap: wrap;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.88);
+    }
+
+    .dot{
+      width: 9px; height: 9px; border-radius: 999px;
+      background: rgba(255,255,255,0.30);
+    }
+    .dot.ok{ background: #33d17a; }
+    .dot.warn{ background: var(--accent); }
+    .dot.err{ background: #ff6b6b; }
+
+    .right-note{
+      font-family: var(--mono);
+      opacity: 0.9;
+      font-size: 12px;
+    }
+
+    .muted{
+      color: var(--text-dim);
+    }
+
+    /* Botão fixo "Voltar" (canto superior esquerdo) */
+    .btn-fixo-voltar{
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 9999;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 14px;
+    border-radius: 12px;
+
+    border: 1px solid rgba(210,171,102,.28);
+    background: rgba(22,97,111,.25);
+    color: rgba(255,255,255,.92);
+
+    font-weight: 750;
+    font-size: 13px;
+    text-decoration: none;
+    user-select: none;
+
+    transition: transform .05s ease, border .15s ease, background .15s ease;
+    backdrop-filter: blur(6px);
+    }
+
+    .btn-fixo-voltar:hover{
+    border-color: rgba(210,171,102,.55);
+    }
+
+    .btn-fixo-voltar:active{
+    transform: translateY(1px);
+    }
+
+    /* Opcional: ajusta em telas pequenas */
+    @media (max-width: 520px){
+    .btn-fixo-voltar{
+        top: 12px;
+        left: 12px;
+        padding: 9px 12px;
+    }
+    }
+
+  </style>
+</head>
+
+<body>
+    <a class="btn-fixo-voltar" href="../../../web/pages/index.html" aria-label="Voltar para o início" title="Voltar">
+        Voltar
+    </a>
+  <main class="app">
+    <header>
+      <div class="logo">
+        <img src="../../../web/assets/LogoCaique.png" alt="Logo" />
+      </div>
+      <div class="title">
+        <h1>Extrair PDF para EXCEL (Lote)</h1>
+        
+      </div>
+    </header>
+
+    <section class="topbar" aria-label="Seleção de PDFs">
+      <span class="label">Arquivos PDF:</span>
+
+      <!-- DESKTOP (pywebview): usa backend e retorna paths reais -->
+      <button class="btn" id="btnAbrirMultiplos" type="button">Abrir… (múltiplos)</button>
+      <button class="btn" id="btnAbrirPasta" type="button">Abrir pasta…</button>
+
+      <!-- WEB fallback: mantém inputs para funcionar no navegador (opcional) -->
+      <input id="pdfFiles" type="file" accept="application/pdf,.pdf" multiple hidden />
+      <input id="pdfFolder" type="file" accept="application/pdf,.pdf" multiple webkitdirectory directory hidden />
+
+      <label class="check" title="Ao marcar, lista PDFs recursivamente (inclui subpastas).">
+        <input id="includeSubfolders" type="checkbox" checked />
+        Incluir subpastas
+      </label>
+
+      <span class="muted" id="fileCount">0 arquivo(s)</span>
+    </section>
+
+
+    <section class="content">
+      <div class="table-wrap">
+        <div class="table-scroll" role="region" aria-label="Tabela de resultados" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 240px;">Arquivo</th>
+                <th style="width: 240px;">Nome</th>
+                <th style="width: 220px;">Número do processo</th>
+                <th style="width: 160px;">Data Encerramento</th>
+                <th style="width: 140px;">Total</th>
+                <th style="width: 140px;">Status</th>
+              </tr>
+            </thead>
+            <tbody id="rows">
+              <!-- preenchido via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="actions" aria-label="Ações">
+      <button class="btn btn-primary" id="btnProcessar">Processar</button>
+      <button class="btn" id="btnSalvarExcel">Salvar Excel</button>
+      <button class="btn" id="btnLimpar">Limpar</button>
+      <button class="btn btn-danger" id="btnRemoverSelecao">Remover seleção</button>
+    </section>
+
+    <section class="statusbar" aria-label="Status">
+      <div class="status-left">
+        <span class="badge" id="badgeApp">
+          <span class="dot warn" id="dotApp"></span>
+          <span id="statusText">Pronto.</span>
+        </span>
+      </div>
+      <div class="right-note" id="hintNote">Selecione PDFs e use “Processar” quando o backend estiver integrado.</div>
+    </section>
+  </main>
+
+  <!-- SheetJS (opcional, apenas JS): usado para exportar XLSX do que estiver na tabela -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.20.2/dist/xlsx.full.min.js"></script>
+
+  <script src="../frontend/pdf_para_excel.js" defer></script>
+</body>
+</html>

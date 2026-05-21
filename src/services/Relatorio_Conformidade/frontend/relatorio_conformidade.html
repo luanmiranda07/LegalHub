@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Relatório de Conformidade</title>
+
+  <style>
+    :root{
+      --bg:#211313;
+      --primary:#16616F;
+      --accent:#D2AB66;
+
+      --text: rgba(255,255,255,.92);
+      --text-dim: rgba(255,255,255,.72);
+      --surface: rgba(255,255,255,.06);
+      --surface2: rgba(255,255,255,.10);
+      --border: rgba(210,171,102,.24);
+
+      --ok:#33d17a;
+      --warn:#D2AB66;
+      --err:#ff6b6b;
+
+      --radius:14px;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", "Noto Sans", "Liberation Sans", sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      min-height:100vh;
+      padding:28px;
+
+      background:
+        radial-gradient(1100px 600px at 18% 0%, rgba(22,97,111,.33), transparent 55%),
+        radial-gradient(900px 520px at 82% 10%, rgba(210,171,102,.22), transparent 58%),
+        var(--bg);
+
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .app{
+      width:min(1150px,100%);
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:18px;
+    }
+    @media (max-width: 980px){
+      .app{ grid-template-columns:1fr; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    header{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      padding:18px 18px 12px 18px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background: linear-gradient(90deg, rgba(22,97,111,.22), transparent 70%);
+    }
+
+    .logo{
+      width:54px;
+      height:54px;
+      border-radius:12px;
+      background: rgba(0,0,0,.25);
+      border:1px solid rgba(210,171,102,.22);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      flex:0 0 auto;
+    }
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      padding:8px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
+    }
+
+    .title h1{
+      margin:0;
+      font-size:18px;
+      font-weight:750;
+      letter-spacing:.2px;
+    }
+    .title p{
+      margin:4px 0 0 0;
+      font-size:12.5px;
+      color:var(--text-dim);
+      line-height:1.3;
+    }
+
+    .content{ padding:16px 18px 18px 18px; }
+
+    .row{
+      display:grid;
+      grid-template-columns: 230px 1fr;
+      gap:10px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    @media (max-width: 560px){
+      .row{ grid-template-columns:1fr; }
+    }
+
+    label{
+      font-size:13px;
+      font-weight:650;
+      color:rgba(255,255,255,.90);
+    }
+
+    input[type="text"]{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      outline:none;
+      background: rgba(0,0,0,.25);
+      color:var(--text);
+    }
+
+    input[type="file"]{ display:none; }
+
+    .fileline{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .filebox{
+      flex:1 1 auto;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.25);
+      color:var(--text-dim);
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size:12.5px;
+    }
+
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(210,171,102,.28);
+      background: rgba(22,97,111,.25);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:750;
+      font-size:13px;
+      transition: transform .05s ease, border .15s ease, background .15s ease;
+      user-select:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      white-space: nowrap;
+    }
+    .btn:hover{ border-color: rgba(210,171,102,.55); }
+    .btn:active{ transform: translateY(1px); }
+    .btn-primary{
+      width:100%;
+      padding:12px 16px;
+      background: linear-gradient(180deg, rgba(210,171,102,.20), rgba(22,97,111,.30));
+      border-color: rgba(210,171,102,.55);
+    }
+    .btn-secondary{
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.12);
+    }
+
+    .hint{
+      margin: 10px 0 14px 0;
+      padding:10px 12px;
+      border-radius:12px;
+      background: rgba(255,255,255,.05);
+      border:1px dashed rgba(210,171,102,.25);
+      color:var(--text-dim);
+      font-size:12.5px;
+      line-height:1.35;
+    }
+
+    .section-title{
+      margin: 10px 0 10px 0;
+      font-weight:800;
+      letter-spacing:.2px;
+      font-size:13.5px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color: rgba(255,255,255,.92);
+    }
+    .section-title::before{
+      content:"";
+      width:10px;
+      height:10px;
+      border-radius:999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(210,171,102,.12);
+    }
+
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:8px;
+    }
+    .chip{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.86);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:700;
+    }
+    .chip.missing{
+      border-color: rgba(255,107,107,.35);
+      background: rgba(255,107,107,.12);
+    }
+
+    .aside{
+      display:flex;
+      flex-direction:column;
+    }
+
+    .status{
+      padding:14px 14px 10px 14px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      font-weight:750;
+      font-size:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.88);
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+
+    .dot{
+      width:9px;
+      height:9px;
+      border-radius:999px;
+      background: rgba(255,255,255,.35);
+    }
+    .dot.ok{ background: var(--ok); }
+    .dot.warn{ background: var(--warn); }
+    .dot.err{ background: var(--err); }
+
+    .log{
+      margin-top:10px;
+      font-family: var(--mono);
+      font-size:12px;
+      line-height:1.35;
+      background: rgba(0,0,0,.30);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:10px;
+      height: 220px;
+      overflow:auto;
+      color: rgba(255,255,255,.86);
+      white-space: pre-wrap;
+    }
+
+    .table-wrap{
+      margin-top: 12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      border-radius:12px;
+      overflow:hidden;
+    }
+    .table-scroll{
+      max-height: 280px;
+      overflow:auto;
+    }
+    table{
+      width:100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+    thead th{
+      position: sticky;
+      top:0;
+      z-index:2;
+      background: linear-gradient(180deg, rgba(22,97,111,.35), rgba(0,0,0,.20));
+      color: rgba(255,255,255,.92);
+      text-align:left;
+      font-size:12.5px;
+      padding:12px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      white-space: nowrap;
+    }
+    tbody td{
+      padding:10px 12px;
+      font-size:13px;
+      color: rgba(255,255,255,.88);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      vertical-align: middle;
+    }
+
+    details{
+      margin-top:12px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:12px;
+      background: rgba(255,255,255,.04);
+      overflow:hidden;
+    }
+    summary{
+      cursor:pointer;
+      padding:10px 12px;
+      font-weight:750;
+      list-style:none;
+      color: rgba(255,255,255,.90);
+    }
+    summary::-webkit-details-marker{ display:none; }
+    details .inner{
+      border-top:1px solid rgba(255,255,255,.08);
+      padding:12px;
+      color: var(--text-dim);
+      font-size:12.5px;
+      line-height:1.35;
+    }
+
+    .muted{ color: var(--text-dim); }
+
+        /* Botão fixo "Voltar" (canto superior esquerdo) */
+    .btn-fixo-voltar{
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 9999;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 14px;
+    border-radius: 12px;
+
+    border: 1px solid rgba(210,171,102,.28);
+    background: rgba(22,97,111,.25);
+    color: rgba(255,255,255,.92);
+
+    font-weight: 750;
+    font-size: 13px;
+    text-decoration: none;
+    user-select: none;
+
+    transition: transform .05s ease, border .15s ease, background .15s ease;
+    backdrop-filter: blur(6px);
+    }
+
+    .btn-fixo-voltar:hover{
+    border-color: rgba(210,171,102,.55);
+    }
+
+    .btn-fixo-voltar:active{
+    transform: translateY(1px);
+    }
+
+    /* Opcional: ajusta em telas pequenas */
+    @media (max-width: 520px){
+    .btn-fixo-voltar{
+        top: 12px;
+        left: 12px;
+        padding: 9px 12px;
+    }
+    }
+
+  </style>
+</head>
+
+<body>
+    <a class="btn-fixo-voltar" href="../../../web/pages/index.html" aria-label="Voltar para o início" title="Voltar">
+        Voltar
+    </a>
+
+  <main class="app">
+    <!-- Painel principal -->
+    <section class="card">
+      <header>
+        <div class="logo">
+          <img src="../../../web/assets/LogoCaique.png" alt="Logo" />
+        </div>
+        <div class="title">
+          <h1>Relatório de Conformidade</h1>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="hint">
+          Fluxo do projeto atual: selecionar <strong>planilha Excel</strong> e <strong>pasta de saída</strong> :contentReference[oaicite:4]{index=4}, e gerar relatórios <strong>PRECA</strong> e <strong>RPV</strong> :contentReference[oaicite:5]{index=5} a partir dos modelos DOCX :contentReference[oaicite:6]{index=6}.
+        </div>
+
+        <div class="row">
+          <label>Planilha Excel:</label>
+          <div class="fileline">
+            <div id="excelName" class="filebox">Nenhum arquivo selecionado</div>
+            <label class="btn" for="excelFile">Selecionar...</label>
+            <input id="excelFile" type="file" accept=".xlsx,.xlsm,.xls" />
+          </div>
+        </div>
+
+        <div class="row">
+          <label>Pasta de saída:</label>
+          <div class="fileline">
+            <div id="outName" class="filebox">Nenhuma pasta selecionada</div>
+            <button class="btn btn-secondary" id="btnOutPick" type="button">Selecionar pasta...</button>
+            <!-- fallback (seleção via arquivos) -->
+            <input id="outFolderFallback" type="file" webkitdirectory directory multiple />
+          </div>
+        </div>
+
+        <div class="row">
+          <label>Modelos:</label>
+          <div>
+            <div class="chips">
+              <span class="chip">MODELO RELATORIO.docx (PRECA)</span>
+              <span class="chip">Conformidade  - RPV.docx (RPV)</span>
+            </div>
+            <div class="muted" style="margin-top:6px; font-size:12.5px;">
+              No backend atual, os dois modelos são gerados sempre :contentReference[oaicite:7]{index=7}.
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Colunas esperadas na planilha (validação automática)</summary>
+          <div class="inner">
+            Estas chaves são usadas como placeholders e leitura de dados na planilha :contentReference[oaicite:8]{index=8}.
+            <div class="chips" id="expectedChips" style="margin-top:10px;"></div>
+            <div class="muted" id="missingNote" style="margin-top:10px;"></div>
+          </div>
+        </details>
+
+        <div style="margin-top: 14px;">
+          <button id="btnGerar" class="btn btn-primary" type="button" disabled>Gerar Relatórios</button>
+        </div>
+
+        <div class="section-title" style="margin-top:16px;">Prévia da planilha</div>
+        <div class="muted" id="excelSummary" style="font-size:12.5px; margin-bottom:10px;">
+          Selecione um Excel para ver contagem de linhas e uma amostra.
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll" role="region" aria-label="Prévia da planilha">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 220px;">NUMERO_PROCESSO</th>
+                  <th style="width: 260px;">AUTOR</th>
+                  <th style="width: 220px;">SITUACAO_PROCESSO</th>
+                  <th style="width: 200px;">DATA_ENCERRAMENTO</th>
+                  <th style="width: 140px;">Observação</th>
+                </tr>
+              </thead>
+              <tbody id="previewRows">
+                <tr>
+                  <td colspan="5" class="muted" style="padding: 14px 12px;">Sem dados.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Painel lateral -->
+    <aside class="card aside">
+      <header>
+        <div class="title">
+          <h1>Status e Log</h1>
+          <p>Validações e mensagens (front-end)</p>
+        </div>
+      </header>
+
+      <div class="status">
+        <div class="badge" id="badgeExcel">
+          <span class="dot warn" id="dotExcel"></span>
+          <span id="excelStatusText">Excel: não selecionado</span>
+        </div>
+
+        <div class="badge" id="badgeOut">
+          <span class="dot warn" id="dotOut"></span>
+          <span id="outStatusText">Saída: não selecionada</span>
+        </div>
+
+        <div class="badge" id="badgeBackend">
+          <span class="dot warn" id="dotBackend"></span>
+          <span id="backendStatusText">Backend: não conectado</span>
+        </div>
+
+
+
+        <div class="log" id="log"></div>
+
+        <div class="hint" style="margin-top: 12px;">
+          Observação: o backend atual cria uma subpasta automática “Relatorios_YYYY-MM-DD_HH-MM-SS” :contentReference[oaicite:9]{index=9} e processa cada linha (processo) gerando arquivos DOCX :contentReference[oaicite:10]{index=10}.
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- SheetJS (XLSX) para ler o Excel e montar a prévia (apenas JS) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.20.2/dist/xlsx.full.min.js"></script>
+
+  <script src="../frontend/relatorio_conformidade.js" defer></script>
+</body>
+</html>
